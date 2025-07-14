@@ -17,7 +17,7 @@ import LogoutButton from "../../components/LogoutButton";
 import { Ionicons } from "@expo/vector-icons";
 import COLORS from "../../constants/colors";
 import { Image } from "expo-image";
-import { sleep } from ".";
+import { sleep } from "../../lib/utils";
 import Loader from "../../components/Loader";
 
 export default function Profile() {
