@@ -17,8 +17,7 @@ import { formatPublishDate } from "../../lib/utils";
 import COLORS from "../../constants/colors";
 import Loader from "../../components/Loader";
 
-export const sleep = (ms) =>
-  new Promise((resolve) => setTimeout(resolve, ms));
+export const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export default function Home() {
   const { token } = useAuthStore();
@@ -40,12 +39,9 @@ export default function Home() {
     try {
       refresh ? setRefreshing(true) : pageNum === 1 && setLoading(true);
 
-      const res = await fetch(
-        `${API_URL}/reviews?page=${pageNum}&limit=2`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
-      );
+      const res = await fetch(`${API_URL}/reviews?page=${pageNum}&limit=2`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to fetch reviews");
@@ -65,9 +61,7 @@ export default function Home() {
     } catch (err) {
       console.log("Error fetching reviews:", err);
     } finally {
-      refresh
-        ? (await sleep(800), setRefreshing(false))
-        : setLoading(false);
+      refresh ? (await sleep(800), setRefreshing(false)) : setLoading(false);
     }
   };
 
@@ -77,23 +71,33 @@ export default function Home() {
 
   /** RENDER ITEM **********************************************************/
   const renderItem = ({ item }) => (
-    <View style={styles.card}>
-      {/* Header */}
-      <View style={styles.headerRow}>
-        <Image source={{ uri: item.user.profileImage }} style={styles.avatar} />
-        <Text style={styles.username}>{item.user.username}</Text>
+    <View style={styles.bookCard}>
+      <View style={styles.bookHeader}>
+        <View style={styles.userInfo}>
+          <Image
+            source={{ uri: item.user.profileImage }}
+            style={styles.avatar}
+          />
+          <Text style={styles.username}>{item.user.username}</Text>
+        </View>
       </View>
 
-      {/* Review image */}
-      <Image source={item.image} style={styles.mainImage} contentFit="cover" />
+      <View style={styles.bookImageContainer}>
+        <Image
+          source={item.image}
+          style={styles.bookImage}
+          contentFit="cover"
+        />
+      </View>
 
-      {/* Details */}
-      <View style={styles.details}>
-        <Text style={styles.title}>{item.title}</Text>
-        <View style={styles.ratingRow}>{renderRatingStars(item.rating)}</View>
+      <View style={styles.bookDetails}>
+        <Text style={styles.bookTitle}>{item.title}</Text>
+        <View style={styles.ratingContainer}>
+          {renderRatingStars(item.rating)}
+        </View>
         <Text style={styles.caption}>{item.caption}</Text>
         <Text style={styles.date}>
-          Posted {formatPublishDate(item.createdAt)}
+          Shared on {formatPublishDate(item.createdAt)}
         </Text>
       </View>
     </View>
@@ -157,7 +161,9 @@ export default function Home() {
               color={COLORS.textSecondary}
             />
             <Text style={styles.emptyText}>Chưa có review nào</Text>
-            <Text style={styles.emptySubtext}>Hãy là người đầu tiên chia sẻ!</Text>
+            <Text style={styles.emptySubtext}>
+              Hãy là người đầu tiên chia sẻ!
+            </Text>
           </View>
         }
       />
