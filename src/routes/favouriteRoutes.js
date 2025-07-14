@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import protectRoute from "../middleware/auth.middleware.js";
 
 import Favourite from "../models/Favourite.js";
-import Review from "../models/Review.js"; // dùng để xác thực review tồn tại (tuỳ chọn)
+import Review from "../models/Review.js";
 
 const router = express.Router();
 
