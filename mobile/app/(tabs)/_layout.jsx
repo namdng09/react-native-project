@@ -30,7 +30,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Home",
+          title: "Trang chủ",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="home-outline" size={size} color={color} />
           ),
@@ -39,16 +39,25 @@ export default function TabLayout() {
       <Tabs.Screen
         name="create"
         options={{
-          title: "Create",
+          title: "Tạo mới",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="add-circle-outline" size={size} color={color} />
           ),
         }}
       />
       <Tabs.Screen
+        name="myReviews"
+        options={{
+          title: "Đánh giá của tôi",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="reader-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="profile"
         options={{
-          title: "Profile",
+          title: "Hồ Sơ",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="person-outline" size={size} color={color} />
           ),
