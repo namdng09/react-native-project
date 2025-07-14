@@ -1,14 +1,17 @@
 import {
   View,
   Text,
-  TouchableOpacity,
   FlatList,
-  ActivityIndicator,
   RefreshControl,
+  ActivityIndicator,
+  Animated,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  Alert,
 } from "react-native";
 import { useAuthStore } from "../../store/authStore";
 import { Image } from "expo-image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import styles from "../../assets/styles/home.styles";
 import { API_URL } from "../../constants/api";
@@ -21,6 +24,7 @@ import { sleep } from "../../lib/utils";
 export default function Home() {
   const { token } = useAuthStore();
   const [reviews, setReviews] = useState([]);
+  const [likedIds, setLikedIds] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [page, setPage] = useState(1);
@@ -38,7 +42,7 @@ export default function Home() {
     try {
       refresh ? setRefreshing(true) : pageNum === 1 && setLoading(true);
 
-      const res = await fetch(`${API_URL}/reviews?page=${pageNum}&limit=2`, {
+      const res = await fetch(`${API_URL}/reviews?page=${pageNum}&limit=4`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -65,43 +69,123 @@ export default function Home() {
     }
   };
 
+  const toggleFavourite = async (reviewId) => {
+    try {
+      await fetch(`${API_URL}/favourites`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ reviewId }),
+      });
+      setLikedIds((prev) => {
+        const next = new Set(prev);
+        next.has(reviewId) ? next.delete(reviewId) : next.add(reviewId);
+        return next;
+      });
+    } catch (err) {
+      Alert.alert("Lỗi", err.message || "Không thể thêm yêu thích");
+    }
+  };
+
   useEffect(() => {
     fetchReviews();
   }, []);
 
-  /** RENDER ITEM **********************************************************/
-  const renderItem = ({ item }) => (
-    <View style={styles.bookCard}>
-      <View style={styles.bookHeader}>
-        <View style={styles.userInfo}>
-          <Image
-            source={{ uri: item.user.profileImage }}
-            style={styles.avatar}
-          />
-          <Text style={styles.username}>{item.user.username}</Text>
+  /* ---------- Item component ---------- */
+  const ReviewCard = ({ item }) => {
+    const isLiked = likedIds.has(item._id);
+    const scaleAnim = useRef(new Animated.Value(0)).current;
+    const lastTap = useRef(null);
+
+    const animateHeart = () => {
+      scaleAnim.setValue(0.3);
+      Animated.sequence([
+        Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true }),
+        Animated.timing(scaleAnim, {
+          toValue: 0,
+          duration: 400,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    };
+
+    const handleDoubleTap = () => {
+      const now = Date.now();
+
+      if (lastTap.current && now - lastTap.current < 300) {
+        animateHeart();
+        if (!isLiked) {
+          toggleFavourite(item._id);
+        }
+      } else {
+        lastTap.current = now;
+      }
+    };
+
+    return (
+      <View style={styles.bookCard}>
+        <View style={styles.bookHeader}>
+          <View style={styles.row}>
+            <View style={styles.userInfo}>
+              <Image
+                source={{ uri: item.user.profileImage }}
+                style={styles.avatar}
+              />
+              <Text style={styles.username}>{item.user.username}</Text>
+              {/* Heart button */}
+              <TouchableOpacity
+                onPress={() => toggleFavourite(item._id)}
+                style={styles.heartAbs}
+              >
+                <Ionicons
+                  name={isLiked ? "heart" : "heart-outline"}
+                  size={24}
+                  color={isLiked ? COLORS.primary : COLORS.textSecondary}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+
+        {/* Image with double-tap */}
+        <TouchableWithoutFeedback onPress={handleDoubleTap}>
+          <View style={styles.bookImageContainer}>
+            <Image
+              source={item.image}
+              style={styles.bookImage}
+              contentFit="cover"
+            />
+
+            {/* big heart animation */}
+            <Animated.View
+              style={[
+                styles.bigHeart,
+                { transform: [{ scale: scaleAnim }], opacity: scaleAnim },
+              ]}
+            >
+              <Ionicons name="heart" size={120} color="rgba(255,255,255,0.9)" />
+            </Animated.View>
+          </View>
+        </TouchableWithoutFeedback>
+
+        {/* Details */}
+
+        <View style={styles.bookDetails}>
+          <Text style={styles.bookTitle}>{item.title}</Text>
+
+          <View style={styles.ratingContainer}>
+            {renderRatingStars(item.rating)}
+          </View>
+          <Text style={styles.caption}>{item.caption}</Text>
+          <Text style={styles.date}>
+            Shared on {formatPublishDate(item.createdAt)}
+          </Text>
         </View>
       </View>
-
-      <View style={styles.bookImageContainer}>
-        <Image
-          source={item.image}
-          style={styles.bookImage}
-          contentFit="cover"
-        />
-      </View>
-
-      <View style={styles.bookDetails}>
-        <Text style={styles.bookTitle}>{item.title}</Text>
-        <View style={styles.ratingContainer}>
-          {renderRatingStars(item.rating)}
-        </View>
-        <Text style={styles.caption}>{item.caption}</Text>
-        <Text style={styles.date}>
-          Shared on {formatPublishDate(item.createdAt)}
-        </Text>
-      </View>
-    </View>
-  );
+    );
+  };
 
   /** RATING STARS *********************************************************/
   const renderRatingStars = (rating) =>
@@ -122,7 +206,7 @@ export default function Home() {
     <View style={styles.container}>
       <FlatList
         data={reviews}
-        renderItem={renderItem}
+        renderItem={({ item }) => <ReviewCard item={item} />}
         keyExtractor={(item) => item._id}
         contentContainerStyle={styles.listContainer}
         showsVerticalScrollIndicator={false}

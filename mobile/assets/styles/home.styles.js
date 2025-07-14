@@ -123,6 +123,30 @@ const styles = StyleSheet.create({
   footerLoader: {
     marginVertical: 20,
   },
+  mainImageWrapper: {
+    position: "relative",
+  },
+  bigHeart: {
+    position: "absolute",
+    top: "40%",
+    left: "40%",
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 12,
+  },
+  userInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 3,
+  },
+  heartAbs: {
+    position: "absolute",
+    right: -215, // sát mép phải theo padding
+    top: "50%",
+    transform: [{ translateY: -11 }], // căn giữa theo chiều dọc (22/2)
+  },
 });
 
 export default styles;
