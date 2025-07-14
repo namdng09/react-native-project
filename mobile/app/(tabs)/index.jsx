@@ -69,6 +69,27 @@ export default function Home() {
     }
   };
 
+  /* ---------------- FETCH FAVOURITES ---------------- */
+  const fetchFavourites = async () => {
+    try {
+      const res = await fetch(`${API_URL}/favourites`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+
+      setLikedIds(new Set(data.reviews.map((r) => r._id)));
+    } catch (err) {
+      console.log("Fetch favourites error:", err.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchReviews();
+    fetchFavourites();
+  }, []);
+
+  /* ---------------- TOGGLE FAVOURITE ---------------- */
   const toggleFavourite = async (reviewId) => {
     try {
       await fetch(`${API_URL}/favourites`, {
@@ -79,19 +100,16 @@ export default function Home() {
         },
         body: JSON.stringify({ reviewId }),
       });
+
       setLikedIds((prev) => {
         const next = new Set(prev);
         next.has(reviewId) ? next.delete(reviewId) : next.add(reviewId);
         return next;
       });
     } catch (err) {
-      Alert.alert("Lỗi", err.message || "Không thể thêm yêu thích");
+      Alert.alert("Lỗi", err.message || "Không thể cập nhật yêu thích");
     }
   };
-
-  useEffect(() => {
-    fetchReviews();
-  }, []);
 
   /* ---------- Item component ---------- */
   const ReviewCard = ({ item }) => {
