@@ -16,8 +16,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { formatPublishDate } from "../../lib/utils";
 import COLORS from "../../constants/colors";
 import Loader from "../../components/Loader";
-
-export const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+import { sleep } from "../../lib/utils";
 
 export default function Home() {
   const { token } = useAuthStore();
@@ -59,7 +58,8 @@ export default function Home() {
       setHasMore(pageNum < data.totalPages);
       setPage(pageNum);
     } catch (err) {
-      console.log("Error fetching reviews:", err);
+      console.error("Error fetching data:", error);
+      Alert.alert("Lỗi", "Không tải được dữ liệu. Kéo xuống để thử lại.");
     } finally {
       refresh ? (await sleep(800), setRefreshing(false)) : setLoading(false);
     }
