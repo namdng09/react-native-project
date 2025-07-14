@@ -91,19 +91,31 @@ export default function Home() {
 
   /* ---------------- TOGGLE FAVOURITE ---------------- */
   const toggleFavourite = async (reviewId) => {
+    const alreadyLiked = likedIds.has(reviewId);
+
+    const url = alreadyLiked
+      ? `${API_URL}/favourites/${reviewId}`
+      : `${API_URL}/favourites`;
+
+    const options = alreadyLiked
+      ? { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }
+      : {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ reviewId }),
+        };
+
     try {
-      await fetch(`${API_URL}/favourites`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ reviewId }),
-      });
+      const res = await fetch(url, options);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Favourite error");
 
       setLikedIds((prev) => {
         const next = new Set(prev);
-        next.has(reviewId) ? next.delete(reviewId) : next.add(reviewId);
+        alreadyLiked ? next.delete(reviewId) : next.add(reviewId);
         return next;
       });
     } catch (err) {
