@@ -169,6 +169,22 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     fontSize: 14,
   },
+  header: {
+    marginBottom: 20,
+    alignItems: "center",
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontFamily: "JetBrainsMono-Medium",
+    letterSpacing: 0.5,
+    color: COLORS.primary,
+    marginBottom: 8,
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    textAlign: "center",
+  },
 });
 
 export default styles;
