@@ -15,6 +15,7 @@ import styles from "../../assets/styles/profile.styles";
 import ProfileHeader from "../../components/ProfileHeader";
 import LogoutButton from "../../components/LogoutButton";
 import { Ionicons } from "@expo/vector-icons";
+import { formatPublishDate } from "../../lib/utils";
 import COLORS from "../../constants/colors";
 import { Image } from "expo-image";
 import { sleep } from "../../lib/utils";
@@ -89,9 +90,7 @@ export default function MyReviews() {
         <Text style={styles.bookCaption} numberOfLines={2}>
           {item.caption}
         </Text>
-        <Text style={styles.bookDate}>
-          {new Date(item.createdAt).toLocaleDateString()}
-        </Text>
+        <Text style={styles.bookDate}>{formatPublishDate(item.createdAt)}</Text>
       </View>
 
       <TouchableOpacity
