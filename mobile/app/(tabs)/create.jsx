@@ -75,7 +75,10 @@ export default function CreateReview() {
 
   const handleSubmit = async () => {
     if (!productName || !content || !imageBase64 || !rating) {
-      Alert.alert("Thiếu thông tin", "Vui lòng điền đầy đủ các trường bắt buộc");
+      Alert.alert(
+        "Thiếu thông tin",
+        "Vui lòng điền đầy đủ các trường bắt buộc",
+      );
       return;
     }
 
@@ -160,7 +163,7 @@ export default function CreateReview() {
               <Text style={styles.label}>Tên sản phẩm</Text>
               <View style={styles.inputContainer}>
                 <Ionicons
-                  name="rose-outline"            /* Đổi icon nếu cần */
+                  name="rose-outline"
                   size={20}
                   color={COLORS.textSecondary}
                   style={styles.inputIcon}
