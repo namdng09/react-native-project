@@ -14,3 +14,5 @@ export function formatPublishDate(dateString) {
   const year = date.getFullYear();
   return `${month} ${day}, ${year}`;
 }
+
+export const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
