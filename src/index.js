@@ -19,6 +19,8 @@ app.use(cors());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/books", bookRoutes);
+app.use("/api/reviews", bookRoutes);
+app.use("/api/favourites", bookRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
