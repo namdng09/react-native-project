@@ -28,7 +28,10 @@ export default function CreateReview() {
   const [rating, setRating] = useState(3);
   const [image, setImage] = useState(null);
   const [imageBase64, setImageBase64] = useState(null);
-  const [location, setLocation] = useState(null);
+  const [location, setLocation] = useState({
+    latitude: 21.0285,
+    longitude: 105.8542,
+  });
   const [loading, setLoading] = useState(false);
 
   const router = useRouter();

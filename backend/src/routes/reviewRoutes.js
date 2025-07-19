@@ -7,9 +7,9 @@ const router = express.Router();
 
 router.post("/", protectRoute, async (req, res) => {
   try {
-    const { title, caption, rating, image } = req.body;
+    const { title, caption, rating, image, location } = req.body;
 
-    if (!image || !title || !caption || !rating) {
+    if (!image || !title || !caption || !rating || !location) {
       return res.status(400).json({ message: "Please provide all fields" });
     }
 
@@ -24,6 +24,7 @@ router.post("/", protectRoute, async (req, res) => {
       rating,
       image: imageUrl,
       user: req.user._id,
+      location,
     });
 
     await newReview.save();
@@ -65,7 +66,9 @@ router.get("/", protectRoute, async (req, res) => {
 // Get reviews by logged-in user
 router.get("/user", protectRoute, async (req, res) => {
   try {
-    const reviews = await Review.find({ user: req.user._id }).sort({ createdAt: -1 });
+    const reviews = await Review.find({ user: req.user._id }).sort({
+      createdAt: -1,
+    });
     res.json(reviews);
   } catch (error) {
     console.error("Get user reviews error:", error.message);
@@ -104,7 +107,10 @@ router.delete("/:id", protectRoute, async (req, res) => {
 
 router.get("/:id", protectRoute, async (req, res) => {
   try {
-    const review = await Review.findById(req.params.id).populate("user", "-password");
+    const review = await Review.findById(req.params.id).populate(
+      "user",
+      "-password",
+    );
     if (!review) return res.status(404).json({ message: "Review not found" });
 
     res.json({ review });

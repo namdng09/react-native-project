@@ -25,6 +25,10 @@ const reviewSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    location: {
+      latitude: { type: Number },
+      longitude: { type: Number },
+    },
   },
   { timestamps: true },
 );
