@@ -151,7 +151,7 @@ export default function CreateReview() {
         <View style={styles.card}>
           {/* HEADER */}
           <View style={styles.header}>
-            <Text style={styles.title}>Thêm Đánh Giá Sản Phẩm Hoa</Text>
+            <Text style={styles.title}>Thêm Đánh Giá Sản Phẩm Hoa Tươi</Text>
             <Text style={styles.subtitle}>
               Chia sẻ trải nghiệm mua hoa của bạn
             </Text>
