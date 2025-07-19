@@ -40,14 +40,14 @@ export default function Signup() {
         <View style={styles.card}>
           {/* HEADER */}
           <View style={styles.header}>
-            <Text style={styles.title}>Book Sharing</Text>
-            <Text style={styles.subtitle}>Share your favorite reads</Text>
+            <Text style={styles.title}>Flaura</Text>
+            <Text style={styles.subtitle}>Đánh giá hoa, lan tỏa niềm vui</Text>
           </View>
 
           <View style={styles.formContainer}>
             {/* USERNAME INPUT */}
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Username</Text>
+              <Text style={styles.label}>Tên tài khoản</Text>
               <View style={styles.inputContainer}>
                 <Ionicons
                   name="person-outline"
@@ -90,7 +90,7 @@ export default function Signup() {
 
             {/* PASSWORD INPUT */}
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Password</Text>
+              <Text style={styles.label}>Mật khẩu</Text>
               <View style={styles.inputContainer}>
                 <Ionicons
                   name="lock-closed-outline"
@@ -124,15 +124,15 @@ export default function Signup() {
               {isLoading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={styles.buttonText}>Sign Up</Text>
+                <Text style={styles.buttonText}>Đăng Ký</Text>
               )}
             </TouchableOpacity>
 
             {/* FOOTER */}
             <View style={styles.footer}>
-              <Text style={styles.footerText}>Already have an account?</Text>
+              <Text style={styles.footerText}>Đã có tài khoản?</Text>
               <TouchableOpacity onPress={() => router.back()}>
-                <Text style={styles.link}>Login</Text>
+                <Text style={styles.link}>Đăng nhập</Text>
               </TouchableOpacity>
             </View>
           </View>

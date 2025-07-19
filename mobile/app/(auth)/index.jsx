@@ -58,7 +58,7 @@ export default function Login() {
                 />
                 <TextInput
                   style={styles.input}
-                  placeholder="Enter your email"
+                  placeholder="Nhập email của bạn"
                   placeholderTextColor={COLORS.placeholderText}
                   value={email}
                   onChangeText={setEmail}
@@ -70,7 +70,7 @@ export default function Login() {
 
             {/* PASSWORD */}
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Password</Text>
+              <Text style={styles.label}>Mật Khẩu</Text>
               <View style={styles.inputContainer}>
                 {/* LEFT ICON */}
                 <Ionicons
@@ -82,7 +82,7 @@ export default function Login() {
                 {/* INPUT */}
                 <TextInput
                   style={styles.input}
-                  placeholder="Enter your password"
+                  placeholder="Nhập mật khẩu của bạn"
                   placeholderTextColor={COLORS.placeholderText}
                   value={password}
                   onChangeText={setPassword}
@@ -102,7 +102,11 @@ export default function Login() {
               </View>
             </View>
 
-            <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={isLoading}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={handleLogin}
+              disabled={isLoading}
+            >
               {isLoading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
@@ -110,13 +114,12 @@ export default function Login() {
               )}
             </TouchableOpacity>
 
-
             {/* FOOTER */}
             <View style={styles.footer}>
-              <Text style={styles.footerText}>Don't have an account?</Text>
+              <Text style={styles.footerText}>Chưa có tài khoản?</Text>
               <Link href="/signup" asChild>
                 <TouchableOpacity>
-                  <Text style={styles.link}>Sign Up</Text>
+                  <Text style={styles.link}>Đăng ký</Text>
                 </TouchableOpacity>
               </Link>
             </View>
@@ -126,3 +129,4 @@ export default function Login() {
     </KeyboardAvoidingView>
   );
 }
+

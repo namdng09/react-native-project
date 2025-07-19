@@ -62,7 +62,7 @@ export default function Home() {
       setHasMore(pageNum < data.totalPages);
       setPage(pageNum);
     } catch (err) {
-      console.error("Error fetching data:", error);
+      // console.error("Error fetching data:", err);
       Alert.alert("Lỗi", "Không tải được dữ liệu. Kéo xuống để thử lại.");
     } finally {
       refresh ? (await sleep(800), setRefreshing(false)) : setLoading(false);
