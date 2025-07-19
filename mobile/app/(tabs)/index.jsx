@@ -20,6 +20,7 @@ import COLORS from "../../constants/colors";
 import Loader from "../../components/Loader";
 import { useCallback } from "react";
 import ReviewCard from "../../components/ReviewCard";
+import { useFocusEffect } from "expo-router";
 
 export default function Home() {
   const { token } = useAuthStore();
@@ -65,7 +66,7 @@ export default function Home() {
       // console.error("Error fetching data:", err);
       Alert.alert("Lỗi", "Không tải được dữ liệu. Kéo xuống để thử lại.");
     } finally {
-      refresh ? (setRefreshing(false)) : setLoading(false);
+      refresh ? setRefreshing(false) : setLoading(false);
     }
   };
 
@@ -142,14 +143,17 @@ export default function Home() {
     setPage(1);
 
     try {
-      await Promise.all([
-        fetchReviews(1, true),
-        fetchFavourites(),
-      ]);
+      await Promise.all([fetchReviews(1, true), fetchFavourites()]);
     } catch (err) {
       console.log("Refresh error:", err.message);
     }
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      handleRefresh();
+    }, []),
+  );
 
   if (loading) return <Loader />;
 

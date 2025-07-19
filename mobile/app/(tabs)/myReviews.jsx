@@ -15,7 +15,7 @@ import styles from "../../assets/styles/profile.styles";
 import ProfileHeader from "../../components/ProfileHeader";
 import LogoutButton from "../../components/LogoutButton";
 import { Ionicons } from "@expo/vector-icons";
-import { formatPublishDate } from "../../lib/utils";
+import { formatPublishDate, renderRatingStars } from "../../lib/utils";
 import COLORS from "../../constants/colors";
 import { Image } from "expo-image";
 import Loader from "../../components/Loader";
@@ -105,22 +105,6 @@ export default function MyReviews() {
     </View>
   );
 
-  const renderRatingStars = (rating) => {
-    const stars = [];
-    for (let i = 1; i <= 5; i++) {
-      stars.push(
-        <Ionicons
-          key={i}
-          name={i <= rating ? "star" : "star-outline"}
-          size={14}
-          color={i <= rating ? "#f4b400" : COLORS.textSecondary}
-          style={{ marginRight: 2 }}
-        />,
-      );
-    }
-    return stars;
-  };
-
   const handleRefresh = async () => {
     setRefreshing(true);
     await fetchData();
@@ -131,13 +115,6 @@ export default function MyReviews() {
 
   return (
     <View style={styles.container}>
-      {/* HEADER */}
-      {/* <View style={styles.reviewsHeader}> */}
-      {/*   <Ionicons name="reader-outline" size={20} color={COLORS.primary} /> */}
-      {/*   <Text style={styles.reviewsTitle}>Đánh giá của bạn</Text> */}
-      {/*   <Text style={styles.reviewsCount}>{reviews.length} review</Text> */}
-      {/* </View> */}
-
       <FlatList
         data={reviews}
         renderItem={renderItem}
