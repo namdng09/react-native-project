@@ -21,10 +21,10 @@ import { sleep } from "../../lib/utils";
 import Loader from "../../components/Loader";
 
 export default function Profile() {
-  const [books, setBooks] = useState([]);
+  const [reviews, setReviews] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [deleteBookId, setDeleteBookId] = useState(null);
+  const [deleteReviewId, setDeleteReviewId] = useState(null);
 
   const { token } = useAuthStore();
 
@@ -34,15 +34,16 @@ export default function Profile() {
     try {
       setIsLoading(true);
 
-      const response = await fetch(`${API_URL}/books/user`, {
+      const response = await fetch(`${API_URL}/favourites`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       const data = await response.json();
+
       if (!response.ok)
         throw new Error(data.message || "Failed to fetch user books");
 
-      setBooks(data);
+      setReviews(data.reviews);
     } catch (error) {
       console.error("Error fetching data:", error);
       Alert.alert(
@@ -58,29 +59,29 @@ export default function Profile() {
     fetchData();
   }, []);
 
-  const handleDeleteBook = async (bookId) => {
+  const handleRemoveFavouriteReview = async (reviewId) => {
     try {
-      setDeleteBookId(bookId);
+      setDeleteReviewId(reviewId);
 
-      const response = await fetch(`${API_URL}/books/${bookId}`, {
+      const response = await fetch(`${API_URL}/favourites/${reviewId}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
 
       const data = await response.json();
       if (!response.ok)
-        throw new Error(data.message || "Failed to delete book");
+        throw new Error(data.message || "Failed to remove favourite");
 
-      setBooks(books.filter((book) => book._id !== bookId));
+      setReviews(reviews.filter((review) => review._id !== reviewId));
       Alert.alert("Thành công", "Đã gỡ mục yêu thích thành công");
     } catch (error) {
       Alert.alert("Lỗi", error.message || "Không thể gỡ mục yêu thích");
     } finally {
-      setDeleteBookId(null);
+      setDeleteReviewId(null);
     }
   };
 
-  const confirmDelete = (bookId) => {
+  const confirmDelete = (reviewId) => {
     Alert.alert(
       "Gỡ mục yêu thích",
       "Bạn có chắc chắn muốn gỡ yêu mục yêu thích này không?",
@@ -89,13 +90,13 @@ export default function Profile() {
         {
           text: "Gỡ",
           style: "destructive",
-          onPress: () => handleDeleteBook(bookId),
+          onPress: () => handleRemoveFavouriteReview(reviewId),
         },
       ],
     );
   };
 
-  const renderBookItem = ({ item }) => (
+  const renderReviewItem = ({ item }) => (
     <View style={styles.bookItem}>
       <Image source={item.image} style={styles.bookImage} />
       <View style={styles.bookInfo}>
@@ -115,7 +116,7 @@ export default function Profile() {
         style={styles.deleteButton}
         onPress={() => confirmDelete(item._id)}
       >
-        {deleteBookId === item._id ? (
+        {deleteReviewId === item._id ? (
           <ActivityIndicator size="small" color={COLORS.primary} />
         ) : (
           <Ionicons name="trash-outline" size={20} color={COLORS.primary} />
@@ -154,15 +155,15 @@ export default function Profile() {
       <ProfileHeader />
       <LogoutButton />
 
-      {/* YOUR RECOMMENDATIONS */}
+      {/* YOUR FAVOURITE */}
       <View style={styles.booksHeader}>
-        <Text style={styles.booksTitle}>Your Recommendations 📚</Text>
-        <Text style={styles.booksCount}>{books.length} books</Text>
+        <Text style={styles.booksTitle}>Mục yêu thích</Text>
+        <Text style={styles.booksCount}>{reviews.length} reviews</Text>
       </View>
 
       <FlatList
-        data={books}
-        renderItem={renderBookItem}
+        data={reviews}
+        renderItem={renderReviewItem}
         keyExtractor={(item) => item._id}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.booksList}
