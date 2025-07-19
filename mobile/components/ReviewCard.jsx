@@ -11,8 +11,10 @@ import { Image } from "expo-image";
 import styles from "../assets/styles/home.styles";
 import COLORS from "../constants/colors";
 import { formatPublishDate, renderRatingStars } from "../lib/utils";
+import { useRouter } from "expo-router";
 
 const ReviewCard = ({ item, isLiked, toggleFavourite }) => {
+  const router = useRouter();
   const scaleAnim = useRef(new Animated.Value(0)).current;
   const lastTap = useRef(null);
 
@@ -88,7 +90,9 @@ const ReviewCard = ({ item, isLiked, toggleFavourite }) => {
       {/* Details */}
 
       <View style={styles.bookDetails}>
-        <Text style={styles.bookTitle}>{item.title}</Text>
+        <TouchableOpacity onPress={() => router.push(`/review/${item._id}`)}>
+          <Text style={styles.bookTitle}>{item.title}</Text>
+        </TouchableOpacity>
 
         <View style={styles.ratingContainer}>
           {renderRatingStars(item.rating)}
