@@ -1,11 +1,10 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   View,
   Alert,
   Text,
   FlatList,
   TouchableOpacity,
-  ActivityIndicator,
   RefreshControl,
 } from "react-native";
 import { useRouter } from "expo-router";
@@ -19,6 +18,7 @@ import { formatPublishDate, renderRatingStars } from "../../lib/utils";
 import COLORS from "../../constants/colors";
 import { Image } from "expo-image";
 import Loader from "../../components/Loader";
+import CardItem from "../../components/CardItem";
 
 export default function MyReviews() {
   const [reviews, setReviews] = useState([]);
@@ -78,31 +78,11 @@ export default function MyReviews() {
       { text: "Xoá", style: "destructive", onPress: () => handleDelete(id) },
     ]);
 
-  const renderItem = ({ item }) => (
-    <View style={styles.bookItem}>
-      <Image source={item.image} style={styles.bookImage} />
-      <View style={styles.bookInfo}>
-        <Text style={styles.bookTitle}>{item.title}</Text>
-        <View style={styles.ratingContainer}>
-          {renderRatingStars(item.rating)}
-        </View>
-        <Text style={styles.bookCaption} numberOfLines={2}>
-          {item.caption}
-        </Text>
-        <Text style={styles.bookDate}>{formatPublishDate(item.createdAt)}</Text>
-      </View>
-
-      <TouchableOpacity
-        style={styles.deleteButton}
-        onPress={() => confirmDelete(item._id)}
-      >
-        {deleteId === item._id ? (
-          <ActivityIndicator size="small" color={COLORS.primary} />
-        ) : (
-          <Ionicons name="trash-outline" size={20} color={COLORS.primary} />
-        )}
-      </TouchableOpacity>
-    </View>
+  const renderItem = useCallback(
+    ({ item }) => (
+      <CardItem item={item} deleteId={deleteId} confirmDelete={confirmDelete} />
+    ),
+    [confirmDelete, deleteId],
   );
 
   const handleRefresh = async () => {

@@ -20,7 +20,6 @@ import COLORS from "../../constants/colors";
 import Loader from "../../components/Loader";
 import { useCallback } from "react";
 import ReviewCard from "../../components/ReviewCard";
-import { useFocusEffect } from "expo-router";
 
 export default function Home() {
   const { token } = useAuthStore();
@@ -43,9 +42,12 @@ export default function Home() {
     try {
       refresh ? setRefreshing(true) : pageNum === 1 && setLoading(true);
 
-      const res = await fetch(`${API_URL}/api/reviews?page=${pageNum}&limit=2`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch(
+        `${API_URL}/api/reviews?page=${pageNum}&limit=2`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to fetch reviews");
@@ -148,12 +150,6 @@ export default function Home() {
       console.log("Refresh error:", err.message);
     }
   };
-
-  useFocusEffect(
-    useCallback(() => {
-      handleRefresh();
-    }, []),
-  );
 
   if (loading) return <Loader />;
 

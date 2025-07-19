@@ -33,7 +33,6 @@ export default function ReviewDetail() {
         if (!res.ok) throw new Error(data.message);
         setReview(data.review);
 
-        // Bắt đầu animation sau khi set dữ liệu
         Animated.timing(fadeAnim, {
           toValue: 1,
           duration: 500,

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   View,
   Alert,
@@ -18,6 +18,7 @@ import { Ionicons } from "@expo/vector-icons";
 import COLORS from "../../constants/colors";
 import { Image } from "expo-image";
 import Loader from "../../components/Loader";
+import CardItem from "../../components/CardItem";
 
 export default function Profile() {
   const [reviews, setReviews] = useState([]);
@@ -95,50 +96,12 @@ export default function Profile() {
     );
   };
 
-  const renderReviewItem = ({ item }) => (
-    <View style={styles.bookItem}>
-      <Image source={item.image} style={styles.bookImage} />
-      <View style={styles.bookInfo}>
-        <Text style={styles.bookTitle}>{item.title}</Text>
-        <View style={styles.ratingContainer}>
-          {renderRatingStars(item.rating)}
-        </View>
-        <Text style={styles.bookCaption} numberOfLines={2}>
-          {item.caption}
-        </Text>
-        <Text style={styles.bookDate}>
-          {new Date(item.createdAt).toLocaleDateString()}
-        </Text>
-      </View>
-
-      <TouchableOpacity
-        style={styles.deleteButton}
-        onPress={() => confirmDelete(item._id)}
-      >
-        {deleteReviewId === item._id ? (
-          <ActivityIndicator size="small" color={COLORS.primary} />
-        ) : (
-          <Ionicons name="trash-outline" size={20} color={COLORS.primary} />
-        )}
-      </TouchableOpacity>
-    </View>
+  const renderItem = useCallback(
+    ({ item }) => (
+      <CardItem item={item} deleteId={deleteReviewId} confirmDelete={confirmDelete} />
+    ),
+    [confirmDelete, deleteReviewId],
   );
-
-  const renderRatingStars = (rating) => {
-    const stars = [];
-    for (let i = 1; i <= 5; i++) {
-      stars.push(
-        <Ionicons
-          key={i}
-          name={i <= rating ? "star" : "star-outline"}
-          size={14}
-          color={i <= rating ? "#f4b400" : COLORS.textSecondary}
-          style={{ marginRight: 2 }}
-        />,
-      );
-    }
-    return stars;
-  };
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -161,7 +124,7 @@ export default function Profile() {
 
       <FlatList
         data={reviews}
-        renderItem={renderReviewItem}
+        renderItem={renderItem}
         keyExtractor={(item) => item._id}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.booksList}
