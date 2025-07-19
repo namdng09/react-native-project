@@ -1,6 +1,13 @@
-import { View, Text, ScrollView, ActivityIndicator, Alert } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  ActivityIndicator,
+  Alert,
+  Animated,
+} from "react-native";
 import { useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import { formatPublishDate, renderRatingStars } from "../../lib/utils";
@@ -14,6 +21,7 @@ export default function ReviewDetail() {
   const { token } = useAuthStore();
   const [review, setReview] = useState(null);
   const [loading, setLoading] = useState(true);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     const fetchReview = async () => {
@@ -24,6 +32,13 @@ export default function ReviewDetail() {
         const data = await res.json();
         if (!res.ok) throw new Error(data.message);
         setReview(data.review);
+
+        // Bắt đầu animation sau khi set dữ liệu
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 500,
+          useNativeDriver: true,
+        }).start();
       } catch (err) {
         Alert.alert("Lỗi", err.message || "Không tải được đánh giá");
       } finally {
@@ -36,7 +51,7 @@ export default function ReviewDetail() {
 
   if (loading) {
     return (
-      <View style={styles.center}>
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator size="large" color={COLORS.primary} />
       </View>
     );
@@ -45,7 +60,10 @@ export default function ReviewDetail() {
   if (!review) return null;
 
   return (
-    <ScrollView style={styles.container}>
+    <Animated.ScrollView
+      style={[styles.container, { opacity: fadeAnim }]}
+      showsVerticalScrollIndicator={false}
+    >
       <Image
         source={review.image}
         style={styles.image}
@@ -73,6 +91,6 @@ export default function ReviewDetail() {
           Shared on {formatPublishDate(review.createdAt)}
         </Text>
       </View>
-    </ScrollView>
+    </Animated.ScrollView>
   );
 }
