@@ -102,4 +102,16 @@ router.delete("/:id", protectRoute, async (req, res) => {
   }
 });
 
+router.get("/:id", protectRoute, async (req, res) => {
+  try {
+    const review = await Review.findById(req.params.id).populate("user", "-password");
+    if (!review) return res.status(404).json({ message: "Review not found" });
+
+    res.json({ review });
+  } catch (error) {
+    console.error("Error getting review by ID", error.message);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 export default router;
