@@ -17,7 +17,6 @@ import LogoutButton from "../../components/LogoutButton";
 import { Ionicons } from "@expo/vector-icons";
 import COLORS from "../../constants/colors";
 import { Image } from "expo-image";
-import { sleep } from "../../lib/utils";
 import Loader from "../../components/Loader";
 
 export default function Profile() {
@@ -143,7 +142,6 @@ export default function Profile() {
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    await sleep(500);
     await fetchData();
     setRefreshing(false);
   };

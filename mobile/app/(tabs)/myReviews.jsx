@@ -18,7 +18,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { formatPublishDate } from "../../lib/utils";
 import COLORS from "../../constants/colors";
 import { Image } from "expo-image";
-import { sleep } from "../../lib/utils";
 import Loader from "../../components/Loader";
 
 export default function MyReviews() {
@@ -124,7 +123,6 @@ export default function MyReviews() {
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    await sleep(500);
     await fetchData();
     setRefreshing(false);
   };

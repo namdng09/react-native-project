@@ -18,7 +18,6 @@ import { API_URL } from "../../constants/api";
 import { Ionicons } from "@expo/vector-icons";
 import COLORS from "../../constants/colors";
 import Loader from "../../components/Loader";
-import { sleep } from "../../lib/utils";
 import { useCallback } from "react";
 import ReviewCard from "../../components/ReviewCard";
 
@@ -66,7 +65,7 @@ export default function Home() {
       // console.error("Error fetching data:", err);
       Alert.alert("Lỗi", "Không tải được dữ liệu. Kéo xuống để thử lại.");
     } finally {
-      refresh ? (await sleep(800), setRefreshing(false)) : setLoading(false);
+      refresh ? (setRefreshing(false)) : setLoading(false);
     }
   };
 
@@ -135,6 +134,23 @@ export default function Home() {
     [likedIds],
   );
 
+  const handleRefresh = async () => {
+    if (refreshing) return;
+
+    setRefreshing(true);
+    setHasMore(true);
+    setPage(1);
+
+    try {
+      await Promise.all([
+        fetchReviews(1, true),
+        fetchFavourites(),
+      ]);
+    } catch (err) {
+      console.log("Refresh error:", err.message);
+    }
+  };
+
   if (loading) return <Loader />;
 
   /** MAIN RETURN **********************************************************/
@@ -149,7 +165,7 @@ export default function Home() {
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
-            onRefresh={() => fetchReviews(1, true)}
+            onRefresh={handleRefresh}
             colors={[COLORS.primary]}
             tintColor={COLORS.primary}
           />
