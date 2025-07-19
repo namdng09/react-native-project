@@ -28,7 +28,7 @@ export default function Signup() {
   const handleSignUp = async () => {
     const result = await register(username, email, password);
 
-    if (!result.success) Alert.alert("Error", result.error);
+    if (!result.success) Alert.alert("Đăng ký thất bại", result.error);
   };
 
   return (

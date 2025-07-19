@@ -8,9 +8,9 @@ export default function LogoutButton() {
   const { logout } = useAuthStore();
 
   const confirmLogout = () => {
-    Alert.alert("Logout", "Are you sure you want to logout?", [
-      { text: "Cancel", style: "cancel" },
-      { text: "Logout", onPress: () => logout(), style: "destructive" },
+    Alert.alert("Đăng xuất", "Bạn muốn đăng xuất khỏi tài khoản?", [
+      { text: "Đăng xuất", onPress: () => logout(), style: "destructive" },
+      { text: "Hủy", style: "cancel" },
     ]);
   };
 
