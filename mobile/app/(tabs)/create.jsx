@@ -20,6 +20,7 @@ import { useAuthStore } from "../../store/authStore";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
 import { API_URL } from "../../constants/api";
+import MapView, { Marker } from "react-native-maps";
 
 export default function CreateReview() {
   const [productName, setProductName] = useState("");
@@ -27,6 +28,7 @@ export default function CreateReview() {
   const [rating, setRating] = useState(3);
   const [image, setImage] = useState(null);
   const [imageBase64, setImageBase64] = useState(null);
+  const [location, setLocation] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const router = useRouter();
@@ -74,7 +76,7 @@ export default function CreateReview() {
   };
 
   const handleSubmit = async () => {
-    if (!productName || !content || !imageBase64 || !rating) {
+    if (!productName || !content || !imageBase64 || !rating || !location) {
       Alert.alert(
         "Thiếu thông tin",
         "Vui lòng điền đầy đủ các trường bắt buộc",
@@ -99,6 +101,7 @@ export default function CreateReview() {
           caption: content,
           rating,
           image: imageDataUrl,
+          location,
         }),
       });
 
@@ -203,6 +206,23 @@ export default function CreateReview() {
                   </View>
                 )}
               </TouchableOpacity>
+            </View>
+
+            {/* MAPS */}
+            <View style={styles.formGroupMap}>
+              <Text style={styles.label}>Chọn vị trí</Text>
+              <MapView
+                style={styles.mapPicker}
+                initialRegion={{
+                  latitude: 21.0285,
+                  longitude: 105.8542,
+                  latitudeDelta: 0.01,
+                  longitudeDelta: 0.01,
+                }}
+                onPress={(e) => setLocation(e.nativeEvent.coordinate)}
+              >
+                {location && <Marker coordinate={location} />}
+              </MapView>
             </View>
 
             {/* NỘI DUNG REVIEW */}

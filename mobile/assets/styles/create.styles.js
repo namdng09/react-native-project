@@ -46,6 +46,10 @@ const styles = StyleSheet.create({
   formGroup: {
     marginBottom: 20,
   },
+  formGroupMap: {
+    height: 300,
+    marginBottom: 20,
+  },
   label: {
     fontSize: 14,
     marginBottom: 8,
@@ -92,6 +96,16 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   imagePicker: {
+    width: "100%",
+    height: 200,
+    backgroundColor: COLORS.inputBackground,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    overflow: "hidden",
+  },
+  mapPicker: {
+    flex: 1,
     width: "100%",
     height: 200,
     backgroundColor: COLORS.inputBackground,
