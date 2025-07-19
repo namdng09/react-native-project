@@ -43,7 +43,7 @@ export default function Home() {
     try {
       refresh ? setRefreshing(true) : pageNum === 1 && setLoading(true);
 
-      const res = await fetch(`${API_URL}/reviews?page=${pageNum}&limit=2`, {
+      const res = await fetch(`${API_URL}/api/reviews?page=${pageNum}&limit=3`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -73,7 +73,7 @@ export default function Home() {
   /* ---------------- FETCH FAVOURITES ---------------- */
   const fetchFavourites = async () => {
     try {
-      const res = await fetch(`${API_URL}/favourites`, {
+      const res = await fetch(`${API_URL}/api/favourites`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -95,8 +95,8 @@ export default function Home() {
     const alreadyLiked = likedIds.has(reviewId);
 
     const url = alreadyLiked
-      ? `${API_URL}/favourites/${reviewId}`
-      : `${API_URL}/favourites`;
+      ? `${API_URL}/api/favourites/${reviewId}`
+      : `${API_URL}/api/favourites`;
 
     const options = alreadyLiked
       ? { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }

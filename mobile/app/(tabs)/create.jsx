@@ -88,7 +88,7 @@ export default function CreateReview() {
       const fileType = image?.split(".").pop()?.toLowerCase() || "jpeg";
       const imageDataUrl = `data:image/${fileType};base64,${imageBase64}`;
 
-      const res = await fetch(`${API_URL}/reviews`, {
+      const res = await fetch(`${API_URL}/api/reviews`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

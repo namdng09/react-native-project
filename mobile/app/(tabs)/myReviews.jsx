@@ -33,7 +33,7 @@ export default function MyReviews() {
     try {
       setIsLoading(true);
 
-      const response = await fetch(`${API_URL}/reviews/user`, {
+      const response = await fetch(`${API_URL}/api/reviews/user`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -57,7 +57,7 @@ export default function MyReviews() {
   const handleDelete = async (id) => {
     try {
       setDeleteId(id);
-      const res = await fetch(`${API_URL}/reviews/${id}`, {
+      const res = await fetch(`${API_URL}/api/reviews/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });

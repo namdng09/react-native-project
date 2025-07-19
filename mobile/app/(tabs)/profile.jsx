@@ -33,7 +33,7 @@ export default function Profile() {
     try {
       setIsLoading(true);
 
-      const response = await fetch(`${API_URL}/favourites`, {
+      const response = await fetch(`${API_URL}/api/favourites`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -62,7 +62,7 @@ export default function Profile() {
     try {
       setDeleteReviewId(reviewId);
 
-      const response = await fetch(`${API_URL}/favourites/${reviewId}`, {
+      const response = await fetch(`${API_URL}/api/favourites/${reviewId}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
