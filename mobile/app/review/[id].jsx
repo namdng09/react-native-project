@@ -1,10 +1,4 @@
-import {
-  View,
-  Text,
-  ScrollView,
-  ActivityIndicator,
-  Alert,
-} from "react-native";
+import { View, Text, ScrollView, ActivityIndicator, Alert } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { Image } from "expo-image";
@@ -13,16 +7,20 @@ import { formatPublishDate, renderRatingStars } from "../../lib/utils";
 import styles from "../../assets/styles/reviewDetail.styles";
 import COLORS from "../../constants/colors";
 import { API_URL } from "../../constants/api";
+import { useAuthStore } from "../../store/authStore";
 
 export default function ReviewDetail() {
   const { id } = useLocalSearchParams();
+  const { token } = useAuthStore();
   const [review, setReview] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchReview = async () => {
       try {
-        const res = await fetch(`${API_URL}/api/reviews/${id}`);
+        const res = await fetch(`${API_URL}/api/reviews/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         const data = await res.json();
         if (!res.ok) throw new Error(data.message);
         setReview(data.review);

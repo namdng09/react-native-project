@@ -43,7 +43,7 @@ export default function Home() {
     try {
       refresh ? setRefreshing(true) : pageNum === 1 && setLoading(true);
 
-      const res = await fetch(`${API_URL}/api/reviews?page=${pageNum}&limit=3`, {
+      const res = await fetch(`${API_URL}/api/reviews?page=${pageNum}&limit=2`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
