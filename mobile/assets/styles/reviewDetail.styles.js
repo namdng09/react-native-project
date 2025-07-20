@@ -46,6 +46,7 @@ export default StyleSheet.create({
   username: {
     fontWeight: "600",
     fontSize: 15,
+    maxWidth:300,
     color: COLORS.textPrimary,
   },
   title: {

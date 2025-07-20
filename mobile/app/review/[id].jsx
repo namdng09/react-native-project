@@ -106,7 +106,9 @@ export default function ReviewDetail() {
             source={{ uri: review.user.profileImage }}
             style={styles.avatar}
           />
-          <Text style={styles.username}>{review.user.username}</Text>
+          <Text style={styles.username} numberOfLines={1} ellipsizeMode="tail">
+            {review.user.username}
+          </Text>
         </View>
 
         {/* TITLE */}
