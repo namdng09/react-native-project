@@ -120,4 +120,41 @@ router.get("/:id", protectRoute, async (req, res) => {
   }
 });
 
+router.get("/search", protectRoute, async (req, res) => {
+  try {
+    const { title, rating } = req.query;
+
+    let filter = {};
+
+    if (title) filter.title = new RegExp(title, "i");
+    if (rating) filter.rating = rating;
+
+    const reviews = await Review.find(filter).populate(
+      "user",
+      "username profileImage",
+    );
+
+    res.json(reviews);
+  } catch (error) {
+    console.error("Error searching reviews", error.message);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+router.delete("/admin/:id", protectRoute, async (req, res) => {
+  try {
+    const review = await Review.findById(req.params.id);
+    if (!review) {
+      return res.status(404).json({ message: "Review not found" });
+    }
+
+    await review.deleteOne();
+
+    res.json({ message: "Review deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting review", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 export default router;
