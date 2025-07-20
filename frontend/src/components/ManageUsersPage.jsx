@@ -1,11 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useAdminStore } from "../store/useAdminStore";
+import { useNavigate } from "react-router-dom";
 
 const ManageUsersPage = () => {
   const [search, setSearch] = useState("");
   const [deletingUserId, setDeletingUserId] = useState(null);
   const { users, fetchUsers, deleteUser, loadingUsers, toggleBanStatus } =
     useAdminStore();
+
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchUsers();
@@ -30,7 +35,12 @@ const ManageUsersPage = () => {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        <button className="btn btn-success">Create New User</button>
+        <button
+          className="btn btn-success"
+          onClick={() => navigate("/admin/manage-users/create")}
+        >
+          Create New User
+        </button>
       </div>
 
       {loadingUsers ? (
@@ -39,6 +49,7 @@ const ManageUsersPage = () => {
         <table className="table table-zebra w-full">
           <thead>
             <tr>
+              <th>Avata</th>
               <th>Name</th>
               <th>Email</th>
               <th>Role</th>
@@ -49,6 +60,13 @@ const ManageUsersPage = () => {
           <tbody>
             {filteredUsers.map((user) => (
               <tr key={user._id}>
+                <td>
+                  <div className="avatar">
+                    <div className="w-12 rounded-full">
+                      <img src={user.profileImage} alt={user.username} />
+                    </div>
+                  </div>
+                </td>
                 <td>{user.username}</td>
                 <td>{user.email}</td>
                 <td>
@@ -64,7 +82,7 @@ const ManageUsersPage = () => {
                     {user.role}
                   </span>
                 </td>
-                <td className="flex gap-2">
+                <td>
                   <button
                     className={`btn btn-sm ${
                       user.banned
@@ -77,6 +95,15 @@ const ManageUsersPage = () => {
                   </button>
                 </td>
                 <td>
+                  <button
+                    className="btn btn-info btn-sm"
+                    onClick={() => {
+                      setSelectedUser(user);
+                      setIsModalOpen(true);
+                    }}
+                  >
+                    View
+                  </button>
                   <button className="btn btn-warning btn-sm">Edit</button>
                   <button
                     className="btn btn-error btn-sm ml-2"
@@ -87,6 +114,56 @@ const ManageUsersPage = () => {
                 </td>
               </tr>
             ))}
+            {isModalOpen && selectedUser && (
+              <dialog id="user_detail_modal" className="modal modal-open">
+                <div className="modal-box w-11/12 max-w-md">
+                  <h3 className="font-bold text-lg mb-4">User Details</h3>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-4">
+                      <div className="avatar">
+                        <div className="w-16 rounded-full">
+                          <img
+                            src={selectedUser.profileImage}
+                            alt={selectedUser.username}
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-lg font-semibold">
+                          {selectedUser.username}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          {selectedUser.email}
+                        </p>
+                      </div>
+                    </div>
+                    <p>
+                      <strong>Role:</strong> {selectedUser.role}
+                    </p>
+                    <p>
+                      <strong>Banned:</strong>{" "}
+                      {selectedUser.banned ? "Yes" : "No"}
+                    </p>
+                    <p>
+                      <strong>Created At:</strong>{" "}
+                      {new Date(selectedUser.createdAt).toLocaleString()}
+                    </p>
+                  </div>
+
+                  <div className="modal-action">
+                    <button
+                      className="btn btn-outline"
+                      onClick={() => {
+                        setSelectedUser(null);
+                        setIsModalOpen(false);
+                      }}
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              </dialog>
+            )}
             {deletingUserId && (
               <dialog id="delete_modal" className="modal modal-open">
                 <div className="modal-box">

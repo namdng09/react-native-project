@@ -31,7 +31,7 @@ const HomePage = () => {
               />
               <Route
                 path="/admin/manage-users/create"
-                element={authUser ? <ManageUsersPage /> : <Navigate to="/login" />}
+                element={authUser ? <CreateUserForm /> : <Navigate to="/login" />}
               />
               <Route
                 path="/admin/manage-users/edit"
