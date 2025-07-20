@@ -96,7 +96,7 @@ const ManageUsersPage = () => {
                 </td>
                 <td>
                   <button
-                    className="btn btn-info btn-sm"
+                    className="btn btn-info btn-sm mr-2.5"
                     onClick={() => {
                       setSelectedUser(user);
                       setIsModalOpen(true);
@@ -104,7 +104,14 @@ const ManageUsersPage = () => {
                   >
                     View
                   </button>
-                  <button className="btn btn-warning btn-sm">Edit</button>
+                  <button
+                    className="btn btn-warning btn-sm"
+                    onClick={() =>
+                      navigate(`/admin/manage-users/edit/${user._id}`)
+                    }
+                  >
+                    Edit
+                  </button>
                   <button
                     className="btn btn-error btn-sm ml-2"
                     onClick={() => setDeletingUserId(user._id)}

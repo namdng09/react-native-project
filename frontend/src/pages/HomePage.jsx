@@ -5,6 +5,7 @@ import { useAuthStore } from "./../store/useAuthStore";
 import ManageUsersPage from "../components/ManageUsersPage";
 import ManageReviewsPage from "../components/ManageReviewsPage";
 import CreateUserForm from "../components/CreateUserForm";
+import EditUserForm from "../components/EditUserForm";
 
 const HomePage = () => {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
@@ -40,9 +41,9 @@ const HomePage = () => {
                   }
                 />
                 <Route
-                  path="/admin/manage-users/edit"
+                  path="/admin/manage-users/edit/:id"
                   element={
-                    authUser ? <CreateUserForm /> : <Navigate to="/login" />
+                    authUser ? <EditUserForm /> : <Navigate to="/login" />
                   }
                 />
                 <Route

@@ -10,6 +10,32 @@ export const useAdminStore = create((set, get) => ({
   loadingUsers: false,
   loadingReviews: false,
 
+  updateUserById: async (id, data) => {
+    const token = get().token;
+
+    try {
+      const res = await axiosInstance.put(`/api/users/${id}`, data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      // Cập nhật danh sách users sau khi chỉnh sửa thành công
+      set((state) => ({
+        users: state.users.map((user) =>
+          user._id === id ? { ...user, ...res.data } : user,
+        ),
+      }));
+
+      toast.success("User updated successfully");
+      return true;
+    } catch (error) {
+      console.error("Update failed:", error);
+      toast.error(error?.response?.data?.message || "Update failed");
+      return false;
+    }
+  },
+
   fetchUsers: async () => {
     set({ loadingUsers: true });
     try {
