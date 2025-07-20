@@ -28,8 +28,8 @@ router.post("/", protectRoute, async (req, res) => {
     let favourite = await Favourite.findOne({ user: userId });
 
     if (favourite) {
-      if (!favourite.reviews.some(id => id.equals(reviewObjectId))) {
-        favourite.reviews.push(reviewObjectId);
+      if (!favourite.reviews.some((id) => id.equals(reviewObjectId))) {
+        favourite.reviews.unshift(reviewObjectId);
         await favourite.save();
       }
     } else {
@@ -51,7 +51,7 @@ router.get("/", protectRoute, async (req, res) => {
     const userId = req.user._id;
 
     let favourite = await Favourite.findOne({ user: userId }).populate(
-      "reviews"
+      "reviews",
     );
 
     if (!favourite) {
@@ -80,12 +80,12 @@ router.delete("/:reviewId", protectRoute, async (req, res) => {
     }
 
     const initialLength = favourite.reviews.length;
-    favourite.reviews = favourite.reviews.filter(
-      id => !id.equals(reviewId)
-    );
+    favourite.reviews = favourite.reviews.filter((id) => !id.equals(reviewId));
 
     if (favourite.reviews.length === initialLength) {
-      return res.status(400).json({ message: "Review not found in favourites" });
+      return res
+        .status(400)
+        .json({ message: "Review not found in favourites" });
     }
 
     await favourite.save();
