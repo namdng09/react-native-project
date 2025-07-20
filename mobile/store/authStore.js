@@ -11,7 +11,7 @@ export const useAuthStore = create((set) => ({
   register: async (username, email, password) => {
     set({ isLoading: true });
     try {
-      const response = await fetch(`${API_URL}/auth/register`, {
+      const response = await fetch(`${API_URL}/api/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -43,7 +43,7 @@ export const useAuthStore = create((set) => ({
     set({ isLoading: true });
 
     try {
-      const response = await fetch(`${API_URL}/auth/login`, {
+      const response = await fetch(`${API_URL}/api/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -88,5 +88,12 @@ export const useAuthStore = create((set) => ({
     await AsyncStorage.removeItem("token");
     await AsyncStorage.removeItem("user");
     set({ token: null, user: null });
+  },
+
+  updateUser: async (newUser) => {
+    if (!newUser) throw new Error("Invalid user data");
+
+    await AsyncStorage.setItem("user", JSON.stringify(newUser));
+    set({ user: newUser });
   },
 }));

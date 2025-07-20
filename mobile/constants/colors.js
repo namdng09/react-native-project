@@ -1,4 +1,5 @@
 // FOREST
+/*
 const COLORS = {
   primary: "#4CAF50",
   textPrimary: "#2e5a2e",
@@ -12,6 +13,7 @@ const COLORS = {
   white: "#ffffff",
   black: "#000000",
 };
+*/
 
 // RETRO
 /*
@@ -48,7 +50,6 @@ const COLORS = {
 */
 
 // BLOSSOM
-/*
 const COLORS = {
   primary: "#EC407A", 
   textPrimary: "#7d2150", 
@@ -62,6 +63,5 @@ const COLORS = {
   white: "#ffffff",
   black: "#000000",
 };
-*/
 
 export default COLORS;

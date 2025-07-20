@@ -1,6 +1,7 @@
 import express from "express";
 import User from "../models/User.js";
 import jwt from "jsonwebtoken";
+import protectRoute from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
@@ -17,11 +18,15 @@ router.post("/register", async (req, res) => {
     }
 
     if (password.length < 6) {
-      return res.status(400).json({ message: "Password should be at least 6 characters long" });
+      return res
+        .status(400)
+        .json({ message: "Password should be at least 6 characters long" });
     }
 
     if (username.length < 3) {
-      return res.status(400).json({ message: "Username should be at least 3 characters long" });
+      return res
+        .status(400)
+        .json({ message: "Username should be at least 3 characters long" });
     }
 
     // check if user already exists
@@ -69,7 +74,8 @@ router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    if (!email || !password) return res.status(400).json({ message: "All fields are required" });
+    if (!email || !password)
+      return res.status(400).json({ message: "All fields are required" });
 
     // check if user exists
     const user = await User.findOne({ email });
@@ -77,7 +83,14 @@ router.post("/login", async (req, res) => {
 
     // check if password is correct
     const isPasswordCorrect = await user.comparePassword(password);
-    if (!isPasswordCorrect) return res.status(400).json({ message: "Invalid credentials" });
+    if (!isPasswordCorrect)
+      return res.status(400).json({ message: "Invalid credentials" });
+
+    if (user.banned)
+      return res.status(400).json({
+        message:
+          "Your account has been deactivated. Please contact support for assistance.",
+      });
 
     const token = generateToken(user._id);
 
@@ -94,6 +107,15 @@ router.post("/login", async (req, res) => {
   } catch (error) {
     console.log("Error in login route", error);
     res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+router.get("/check", protectRoute, async (req, res) => {
+  try {
+    res.status(200).json(req.user);
+  } catch (error) {
+    console.log("Error in checkAuth controller", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 });
 
