@@ -143,9 +143,9 @@ const styles = StyleSheet.create({
   },
   heartAbs: {
     position: "absolute",
-    right: -215, // sát mép phải theo padding
+    right: -160,
     top: "50%",
-    transform: [{ translateY: -11 }], // căn giữa theo chiều dọc (22/2)
+    transform: [{ translateY: -11 }],
   },
 });
 
