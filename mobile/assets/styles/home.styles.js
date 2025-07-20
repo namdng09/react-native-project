@@ -62,11 +62,6 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     marginRight: 10,
   },
-  username: {
-    fontSize: 15,
-    fontWeight: "600",
-    color: COLORS.textPrimary,
-  },
   bookImageContainer: {
     width: "100%",
     height: 200,
@@ -134,18 +129,25 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 12,
+    justifyContent: "space-between",
   },
+
   userInfo: {
+    flex: 10,
     flexDirection: "row",
     alignItems: "center",
-    gap: 3,
+    gap: 8,
+  },
+  username: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: COLORS.textPrimary,
+    maxWidth: 200,
   },
   heartAbs: {
-    position: "absolute",
-    right: -160,
-    top: "50%",
-    transform: [{ translateY: -11 }],
+    flex: 2,
+    alignItems: "flex-end",
+    justifyContent: "center",
   },
 });
 

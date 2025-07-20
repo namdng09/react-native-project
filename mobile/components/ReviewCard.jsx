@@ -49,19 +49,25 @@ const ReviewCard = ({ item, isLiked, toggleFavourite }) => {
               source={{ uri: item.user.profileImage }}
               style={styles.avatar}
             />
-            <Text style={styles.username}>{item.user.username}</Text>
-            {/* Heart button */}
-            <TouchableOpacity
-              onPress={() => toggleFavourite(item._id)}
-              style={styles.heartAbs}
+            <Text
+              style={styles.username}
+              numberOfLines={1}
+              ellipsizeMode="tail"
             >
-              <Ionicons
-                name={isLiked ? "heart" : "heart-outline"}
-                size={24}
-                color={isLiked ? COLORS.primary : COLORS.textSecondary}
-              />
-            </TouchableOpacity>
+              {item.user.username}
+            </Text>
           </View>
+          {/* Heart button */}
+          <TouchableOpacity
+            onPress={() => toggleFavourite(item._id)}
+            style={styles.heartAbs}
+          >
+            <Ionicons
+              name={isLiked ? "heart" : "heart-outline"}
+              size={24}
+              color={isLiked ? COLORS.primary : COLORS.textSecondary}
+            />
+          </TouchableOpacity>
         </View>
       </View>
 
