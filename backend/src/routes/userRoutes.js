@@ -226,4 +226,36 @@ router.get("/search", protectRoute, async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
+
+router.put("/:id", protectRoute, async (req, res) => {
+  try {
+    const { username, email, password, banned, role } = req.body;
+    const userId = req.params.id;
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    if (username) user.username = username;
+    if (email) user.email = email;
+    if (typeof banned === "boolean") user.banned = banned;
+    if (role) user.role = role;
+
+    if (password) {
+      if (password.length < 6) {
+        return res
+          .status(400)
+          .json({ message: "Password must be at least 6 characters" });
+      }
+      user.password = password;
+    }
+
+    const updatedUser = await user.save();
+    const { password: _, ...userWithoutPassword } = updatedUser.toObject();
+
+    res.status(200).json(userWithoutPassword);
+  } catch (error) {
+    console.error("Error updating user:", error.message);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
 export default router;

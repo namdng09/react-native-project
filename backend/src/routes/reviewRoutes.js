@@ -46,26 +46,10 @@ router.post("/", protectRoute, async (req, res) => {
 // Get paginated reviews (infinite scroll)
 router.get("/", protectRoute, async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 2;
-    const skip = (page - 1) * limit;
-
-    const reviews = await Review.find()
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .populate("user", "username profileImage");
-
-    const totalReviews = await Review.countDocuments();
-
-    res.send({
-      reviews,
-      currentPage: page,
-      totalReviews,
-      totalPages: Math.ceil(totalReviews / limit),
-    });
+    const reviews = await Review.find().populate("user", "username profileImage");
+    res.status(200).json(reviews);
   } catch (error) {
-    console.log("Error in get all reviews route", error);
+    console.error("Error in get all reviews route:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 });
