@@ -9,6 +9,7 @@ import {
   Image,
   ActivityIndicator,
   Platform,
+  ScrollView,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useAuthStore } from "../../store/authStore";
@@ -26,6 +27,10 @@ export default function ProfileEdit() {
   const [email, setEmail] = useState(user?.email || "");
   const [profileImage, setProfileImage] = useState(user?.profileImage || null);
   const [imageBase64, setImageBase64] = useState(null);
+
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+
   const [loading, setLoading] = useState(false);
 
   const pickImage = async () => {
@@ -98,14 +103,23 @@ export default function ProfileEdit() {
         if (uploadedUrl) newImageUrl = uploadedUrl;
       }
 
-      // Cập nhật thông tin username và email
+      // Nếu muốn đổi mật khẩu, yêu cầu nhập mật khẩu hiện tại
+      if ((currentPassword && !newPassword) || (!currentPassword && newPassword)) {
+        Alert.alert("Lỗi", "Vui lòng nhập cả mật khẩu hiện tại và mật khẩu mới");
+        return;
+      }
+
       const res = await fetch(`${API_URL}/api/users/profile`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ username, email }),
+        body: JSON.stringify({
+          username,
+          email,
+          password: newPassword || undefined, // chỉ gửi nếu có
+        }),
       });
 
       const data = await res.json();
@@ -114,6 +128,8 @@ export default function ProfileEdit() {
       await updateUser({ ...data, profileImage: newImageUrl });
 
       Alert.alert("Thành công", "Cập nhật hồ sơ thành công");
+      setCurrentPassword("");
+      setNewPassword("");
       router.back();
     } catch (err) {
       Alert.alert("Lỗi", err.message || "Không cập nhật được hồ sơ");
@@ -123,7 +139,7 @@ export default function ProfileEdit() {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <TouchableOpacity onPress={pickImage} style={styles.imagePicker}>
         {profileImage ? (
           <Image source={{ uri: profileImage }} style={styles.avatar} />
@@ -144,6 +160,22 @@ export default function ProfileEdit() {
       <Text style={styles.label}>Email</Text>
       <TextInput style={styles.input} value={email} onChangeText={setEmail} />
 
+      <Text style={styles.label}>Mật khẩu hiện tại</Text>
+      <TextInput
+        style={styles.input}
+        value={currentPassword}
+        onChangeText={setCurrentPassword}
+        secureTextEntry
+      />
+
+      <Text style={styles.label}>Mật khẩu mới</Text>
+      <TextInput
+        style={styles.input}
+        value={newPassword}
+        onChangeText={setNewPassword}
+        secureTextEntry
+      />
+
       <TouchableOpacity style={styles.button} onPress={handleSave}>
         {loading ? (
           <ActivityIndicator color="#fff" />
@@ -151,7 +183,7 @@ export default function ProfileEdit() {
           <Text style={styles.buttonText}>Lưu thay đổi</Text>
         )}
       </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -159,7 +191,6 @@ const styles = StyleSheet.create({
   container: {
     padding: 20,
     backgroundColor: "#fff",
-    flex: 1,
   },
   label: {
     fontSize: 16,
