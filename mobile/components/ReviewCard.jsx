@@ -97,7 +97,9 @@ const ReviewCard = ({ item, isLiked, toggleFavourite }) => {
         <View style={styles.ratingContainer}>
           {renderRatingStars(item.rating)}
         </View>
-        <Text style={styles.caption}>{item.caption}</Text>
+        <Text style={styles.caption} numberOfLines={2}>
+          {item.caption}
+        </Text>
         <Text style={styles.date}>
           Shared on {formatPublishDate(item.createdAt)}
         </Text>

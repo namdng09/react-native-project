@@ -14,6 +14,7 @@ import { formatPublishDate, renderRatingStars } from "../../lib/utils";
 import styles from "../../assets/styles/reviewDetail.styles";
 import COLORS from "../../constants/colors";
 import { API_URL } from "../../constants/api";
+import MapView, { Marker } from "react-native-maps";
 import { useAuthStore } from "../../store/authStore";
 
 export default function ReviewDetail() {
@@ -71,6 +72,7 @@ export default function ReviewDetail() {
       />
 
       <View style={styles.content}>
+        {/* USER INFO */}
         <View style={styles.userInfo}>
           <Image
             source={{ uri: review.user.profileImage }}
@@ -79,13 +81,38 @@ export default function ReviewDetail() {
           <Text style={styles.username}>{review.user.username}</Text>
         </View>
 
+        {/* TITLE */}
         <Text style={styles.title}>{review.title}</Text>
 
+        {/* STARS */}
         <View style={styles.ratingContainer}>
           {renderRatingStars(review.rating)}
         </View>
 
+        {/* CAPTION */}
         <Text style={styles.caption}>{review.caption}</Text>
+
+        {/* MAP */}
+        {review.location && (
+          <View style={styles.mapWrapper}>
+            <Text style={styles.mapLabel}>Vị trí được đánh dấu</Text>
+            <MapView
+              style={styles.mapPicker}
+              initialRegion={{
+                latitude: review.location.latitude,
+                longitude: review.location.longitude,
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01,
+              }}
+              scrollEnabled={true}
+              zoomEnabled={true}
+            >
+              <Marker coordinate={review.location} />
+            </MapView>
+          </View>
+        )}
+
+        {/* DATE */}
         <Text style={styles.date}>
           Shared on {formatPublishDate(review.createdAt)}
         </Text>
