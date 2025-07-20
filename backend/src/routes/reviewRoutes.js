@@ -1,9 +1,73 @@
 import express from "express";
 import cloudinary from "../lib/cloudinary.js";
+import User from "../models/User.js";
 import Review from "../models/Review.js";
 import protectRoute from "../middleware/auth.middleware.js";
 
 const router = express.Router();
+
+router.get("/stats", protectRoute, async (req, res) => {
+  try {
+    const userCount = await User.countDocuments();
+    const reviewCount = await Review.countDocuments();
+
+    const bannedUsers = await User.countDocuments({ banned: true });
+    const adminUsers = await User.countDocuments({ role: "admin" });
+
+    const recentUsers = await User.find()
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .select("username email profileImage createdAt");
+
+    const recentReviews = await Review.find()
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .populate("user", "username profileImage")
+      .select("caption image createdAt");
+
+    const topReviewers = await Review.aggregate([
+      {
+        $group: {
+          _id: "$user",
+          totalReviews: { $sum: 1 },
+        },
+      },
+      { $sort: { totalReviews: -1 } },
+      { $limit: 5 },
+      {
+        $lookup: {
+          from: "users",
+          localField: "_id",
+          foreignField: "_id",
+          as: "userInfo",
+        },
+      },
+      { $unwind: "$userInfo" },
+      {
+        $project: {
+          _id: 0,
+          userId: "$userInfo._id",
+          username: "$userInfo.username",
+          profileImage: "$userInfo.profileImage",
+          totalReviews: 1,
+        },
+      },
+    ]);
+
+    res.json({
+      userCount,
+      reviewCount,
+      bannedUsers,
+      adminUsers,
+      recentUsers,
+      recentReviews,
+      topReviewers,
+    });
+  } catch (error) {
+    console.error("Error getting stats:", error.message);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
 
 router.post("/", protectRoute, async (req, res) => {
   try {
@@ -39,26 +103,13 @@ router.post("/", protectRoute, async (req, res) => {
 // Get paginated reviews (infinite scroll)
 router.get("/", protectRoute, async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 2;
-    const skip = (page - 1) * limit;
-
-    const reviews = await Review.find()
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .populate("user", "username profileImage");
-
-    const totalReviews = await Review.countDocuments();
-
-    res.send({
-      reviews,
-      currentPage: page,
-      totalReviews,
-      totalPages: Math.ceil(totalReviews / limit),
-    });
+    const reviews = await Review.find().populate(
+      "user",
+      "username profileImage",
+    );
+    res.status(200).json(reviews);
   } catch (error) {
-    console.log("Error in get all reviews route", error);
+    console.error("Error in get all reviews route:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 });
@@ -81,20 +132,6 @@ router.delete("/:id", protectRoute, async (req, res) => {
   try {
     const review = await Review.findById(req.params.id);
     if (!review) return res.status(404).json({ message: "Review not found" });
-
-    if (review.user.toString() !== req.user._id.toString()) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
-    // delete image from cloudinary if exists
-    if (review.image && review.image.includes("cloudinary")) {
-      try {
-        const publicId = review.image.split("/").pop().split(".")[0];
-        await cloudinary.uploader.destroy(publicId);
-      } catch (deleteError) {
-        console.log("Error deleting image from cloudinary", deleteError);
-      }
-    }
 
     await review.deleteOne();
 
@@ -122,21 +159,37 @@ router.get("/:id", protectRoute, async (req, res) => {
 
 router.get("/search", protectRoute, async (req, res) => {
   try {
-    const { title, rating } = req.query;
+    const { title, rating, page = 1, limit = 5 } = req.query;
 
-    let filter = {};
+    const filter = {};
 
-    if (title) filter.title = new RegExp(title, "i");
-    if (rating) filter.rating = rating;
+    if (title) {
+      filter.title = { $regex: title, $options: "i" };
+    }
 
-    const reviews = await Review.find(filter).populate(
-      "user",
-      "username profileImage",
-    );
+    if (rating) {
+      filter.rating = Number(rating);
+    }
 
-    res.json(reviews);
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    const [reviews, totalReviews] = await Promise.all([
+      Review.find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(parseInt(limit))
+        .populate("user", "-password"),
+      Review.countDocuments(filter),
+    ]);
+
+    res.json({
+      reviews,
+      currentPage: parseInt(page),
+      totalReviews,
+      totalPages: Math.ceil(totalReviews / limit),
+    });
   } catch (error) {
-    console.error("Error searching reviews", error.message);
+    console.error("Error searching reviews:", error.message);
     res.status(500).json({ message: "Internal server error" });
   }
 });

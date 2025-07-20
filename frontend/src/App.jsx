@@ -14,7 +14,7 @@ import { useAuthStore } from "./store/useAuthStore";
 import { useThemeStore } from "./store/useThemeStore";
 
 const App = () => {
-  const { authUser, checkAuth, isCheckingAuth, onlineUsers } = useAuthStore();
+  const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
 
   const { theme } = useThemeStore();
 
@@ -35,7 +35,7 @@ const App = () => {
 
       <Routes>
         <Route
-          path="/"
+          path="/*"
           element={authUser ? <HomePage /> : <Navigate to="/login" />}
         />
         <Route
@@ -51,6 +51,14 @@ const App = () => {
           path="/profile"
           element={authUser ? <ProfilePage /> : <Navigate to="/login" />}
         />
+        {/* <Route */}
+        {/*   path="/manage-users" */}
+        {/*   element={authUser ? <ManageUsersPage /> : <Navigate to="/login" />} */}
+        {/* /> */}
+        {/* <Route */}
+        {/*   path="/manage-reviews" */}
+        {/*   element={authUser ? <ManageReviewsPage /> : <Navigate to="/login" />} */}
+        {/* /> */}
       </Routes>
 
       <Toaster />
