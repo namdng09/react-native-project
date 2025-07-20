@@ -8,6 +8,7 @@ import authRoutes from "./routes/authRoutes.js";
 import bookRoutes from "./routes/bookRoutes.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
 import favouriteRoutes from "./routes/favouriteRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 
 import { connectDB } from "./lib/db.js";
 
@@ -23,6 +24,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/books", bookRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/favourites", favouriteRoutes);
+app.use("/api/users", userRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
