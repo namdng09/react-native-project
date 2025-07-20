@@ -1,9 +1,16 @@
 import express from "express";
 import cloudinary from "../lib/cloudinary.js";
+import User from "../models/User.js";
 import Review from "../models/Review.js";
 import protectRoute from "../middleware/auth.middleware.js";
 
 const router = express.Router();
+
+router.get("/stats", protectRoute, async (req, res) => {
+  const userCount = await User.countDocuments();
+  const reviewCount = await Review.countDocuments();
+  res.json({ userCount, reviewCount });
+});
 
 router.post("/", protectRoute, async (req, res) => {
   try {

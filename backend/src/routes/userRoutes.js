@@ -147,12 +147,15 @@ router.put("/ban/:id", protectRoute, async (req, res) => {
 
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    user.banned = true;
+    user.banned = !user.banned;
     await user.save();
 
-    res.status(200).json({ message: "User has been banned" });
+    res.status(200).json({
+      message: `User has been ${user.banned ? "banned" : "unbanned"}`,
+      banned: user.banned,
+    });
   } catch (error) {
-    console.error("Error banning user:", error.message);
+    console.error("Error toggling banned status:", error.message);
     res.status(500).json({ message: "Internal server error" });
   }
 });
@@ -174,17 +177,50 @@ router.put("/unban/:id", protectRoute, async (req, res) => {
   }
 });
 
+router.get("/", protectRoute, async (req, res) => {
+  try {
+    const users = await User.find().select("-password").sort({ createdAt: -1 });
+
+    res.json({
+      totalUsers: users.length,
+      users,
+    });
+  } catch (error) {
+    console.error("Error getting users:", error.message);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
 router.get("/search", protectRoute, async (req, res) => {
   try {
-    const { username, email, banned } = req.query;
-    let filter = {};
+    const { name, email, page = 1, limit = 10 } = req.query;
 
-    if (username) filter.username = new RegExp(username, "i");
-    if (email) filter.email = new RegExp(email, "i");
-    if (banned !== undefined) filter.banned = banned === "true";
+    const filter = {};
 
-    const users = await User.find(filter);
-    res.status(200).json(users);
+    if (name) {
+      filter.name = { $regex: name, $options: "i" };
+    }
+
+    if (email) {
+      filter.email = { $regex: email, $options: "i" };
+    }
+
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    const [users, totalUsers] = await Promise.all([
+      User.find(filter)
+        .select("-password") // ẩn trường password
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(parseInt(limit)),
+      User.countDocuments(filter),
+    ]);
+
+    res.json({
+      users,
+      currentPage: parseInt(page),
+      totalUsers,
+      totalPages: Math.ceil(totalUsers / limit),
+    });
   } catch (error) {
     console.error("Error searching users:", error.message);
     res.status(500).json({ message: "Internal server error" });
