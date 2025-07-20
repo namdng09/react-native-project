@@ -22,7 +22,7 @@ import { useCallback } from "react";
 import ReviewCard from "../../components/ReviewCard";
 
 export default function Home() {
-  const { token } = useAuthStore();
+  const { token, user } = useAuthStore();
   const [reviews, setReviews] = useState([]);
   const [likedIds, setLikedIds] = useState(new Set());
   const [loading, setLoading] = useState(true);
@@ -87,10 +87,15 @@ export default function Home() {
     }
   };
 
+  const fetchAllData = async () => {
+    await Promise.all([fetchReviews(), fetchFavourites()]);
+  };
+
   useEffect(() => {
-    fetchReviews();
-    fetchFavourites();
-  }, []);
+    if (user && token) {
+      fetchAllData();
+    }
+  }, [user, token]);
 
   /* ---------------- TOGGLE FAVOURITE ---------------- */
   const toggleFavourite = async (reviewId) => {
