@@ -62,4 +62,54 @@ router.put("/profile/image", protectRoute, async (req, res) => {
   }
 });
 
+router.put("/ban/:id", protectRoute, async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const user = await User.findById(userId);
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    user.banned = true;
+    await user.save();
+
+    res.status(200).json({ message: "User has been banned" });
+  } catch (error) {
+    console.error("Error banning user:", error.message);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+router.put("/unban/:id", protectRoute, async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const user = await User.findById(userId);
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    user.banned = false;
+    await user.save();
+
+    res.status(200).json({ message: "User has been unbanned" });
+  } catch (error) {
+    console.error("Error unbanning user:", error.message);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+router.get("/search", protectRoute, async (req, res) => {
+  try {
+    const { username, email, banned } = req.query;
+    let filter = {};
+
+    if (username) filter.username = new RegExp(username, "i");
+    if (email) filter.email = new RegExp(email, "i");
+    if (banned !== undefined) filter.banned = banned === "true";
+
+    const users = await User.find(filter);
+    res.status(200).json(users);
+  } catch (error) {
+    console.error("Error searching users:", error.message);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
 export default router;
