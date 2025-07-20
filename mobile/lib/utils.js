@@ -17,8 +17,8 @@ export function formatPublishDate(dateString) {
   return `${month} ${day}, ${year}`;
 }
 
-export function renderRatingStars (rating) {
-  Array.from({ length: 5 }, (_, i) => (
+export function renderRatingStars(rating) {
+  return Array.from({ length: 5 }, (_, i) => (
     <Ionicons
       key={i + 1}
       name={i + 1 <= rating ? "star" : "star-outline"}
