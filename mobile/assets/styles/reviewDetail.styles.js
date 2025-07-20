@@ -14,6 +14,7 @@ export default StyleSheet.create({
   image: {
     width: "100%",
     height: 280,
+    resizeMode: "cover",
     borderBottomLeftRadius: 12,
     borderBottomRightRadius: 12,
   },
@@ -90,5 +91,19 @@ export default StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.border,
     overflow: "hidden",
+  },
+  captionWrapper: {},
+  captionText: {
+    backgroundColor: COLORS.white,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    marginBottom: 16,
+    overflow: "hidden",
+    fontSize: 16,
+    lineHeight: 22,
+    color: COLORS.textSecondary,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
   },
 });

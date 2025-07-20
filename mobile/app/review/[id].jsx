@@ -24,6 +24,20 @@ export default function ReviewDetail() {
   const [loading, setLoading] = useState(true);
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
+  const scrollY = useRef(new Animated.Value(0)).current;
+
+  const imageScale = scrollY.interpolate({
+    inputRange: [-200, 0],
+    outputRange: [2, 1],
+    extrapolate: "clamp",
+  });
+
+  const imageTranslateY = scrollY.interpolate({
+    inputRange: [-200, 0],
+    outputRange: [-50, 0],
+    extrapolate: "clamp",
+  });
+
   useEffect(() => {
     const fetchReview = async () => {
       try {
@@ -61,15 +75,29 @@ export default function ReviewDetail() {
 
   return (
     <Animated.ScrollView
-      style={[styles.container, { opacity: fadeAnim }]}
+      style={[styles.container]}
       showsVerticalScrollIndicator={false}
+      scrollEventThrottle={16}
+      onScroll={Animated.event(
+        [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+        { useNativeDriver: true },
+      )}
     >
-      <Image
-        source={review.image}
-        style={styles.image}
-        contentFit="cover"
-        cachePolicy="memory-disk"
-      />
+      <Animated.View
+        style={[
+          styles.imageWrapper,
+          {
+            transform: [{ scale: imageScale }, { translateY: imageTranslateY }],
+          },
+        ]}
+      >
+        <Image
+          source={review.image}
+          style={styles.image}
+          contentFit="cover"
+          cachePolicy="memory-disk"
+        />
+      </Animated.View>
 
       <View style={styles.content}>
         {/* USER INFO */}
@@ -90,7 +118,10 @@ export default function ReviewDetail() {
         </View>
 
         {/* CAPTION */}
-        <Text style={styles.caption}>{review.caption}</Text>
+        <View style={styles.captionWrapper}>
+          <Text style={styles.mapLabel}>Mô tả</Text>
+          <Text style={styles.captionText}>{review.caption}</Text>
+        </View>
 
         {/* MAP */}
         {review.location && (
