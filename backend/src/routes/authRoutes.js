@@ -1,6 +1,7 @@
 import express from "express";
 import User from "../models/User.js";
 import jwt from "jsonwebtoken";
+import protectRoute from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
@@ -106,6 +107,15 @@ router.post("/login", async (req, res) => {
   } catch (error) {
     console.log("Error in login route", error);
     res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+router.get("/check", protectRoute, async (req, res) => {
+  try {
+    res.status(200).json(req.user);
+  } catch (error) {
+    console.log("Error in checkAuth controller", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 });
 
