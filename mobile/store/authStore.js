@@ -89,5 +89,11 @@ export const useAuthStore = create((set) => ({
     await AsyncStorage.removeItem("user");
     set({ token: null, user: null });
   },
-}));
 
+  updateUser: async (newUser) => {
+    if (!newUser) throw new Error("Invalid user data");
+
+    await AsyncStorage.setItem("user", JSON.stringify(newUser));
+    set({ user: newUser });
+  },
+}));

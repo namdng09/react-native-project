@@ -14,7 +14,7 @@ import COLORS from "../../constants/colors";
 
 export default function ProfileEdit() {
   const router = useRouter();
-  const { user, setUser, token } = useAuthStore();
+  const { user, updateUser, token } = useAuthStore();
 
   const [username, setUsername] = useState(user?.username || "");
   const [email, setEmail] = useState(user?.email || "");
@@ -33,7 +33,8 @@ export default function ProfileEdit() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
 
-      setUser(data.user); // cập nhật store
+      await updateUser(data);
+
       Alert.alert("Thành công", "Cập nhật hồ sơ thành công");
       router.back(); // quay lại
     } catch (err) {
@@ -51,11 +52,7 @@ export default function ProfileEdit() {
       />
 
       <Text style={styles.label}>Email</Text>
-      <TextInput
-        style={styles.input}
-        value={email}
-        onChangeText={setEmail}
-      />
+      <TextInput style={styles.input} value={email} onChangeText={setEmail} />
 
       <TouchableOpacity style={styles.button} onPress={handleSave}>
         <Text style={styles.buttonText}>Lưu thay đổi</Text>
