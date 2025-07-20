@@ -9,6 +9,29 @@ export const useAdminStore = create((set, get) => ({
   stats: null,
   loadingUsers: false,
   loadingReviews: false,
+  stats: {
+    userCount: 0,
+    reviewCount: 0,
+    bannedUsers: 0,
+    adminUsers: 0,
+    recentUsers: [],
+    recentReviews: [],
+    topReviewers: [],
+  },
+
+  getStats: async () => {
+    try {
+      const res = await axiosInstance.get("/api/reviews/stats", {
+        headers: {
+          Authorization: `Bearer ${get().token}`,
+        },
+      });
+      set({ stats: res.data });
+    } catch (error) {
+      toast.error("Failed to fetch dashboard stats");
+      console.error("Stats error:", error);
+    }
+  },
 
   fetchAllReviews: async () => {
     set({ loadingReviews: true });

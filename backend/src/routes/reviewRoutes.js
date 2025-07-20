@@ -7,9 +7,66 @@ import protectRoute from "../middleware/auth.middleware.js";
 const router = express.Router();
 
 router.get("/stats", protectRoute, async (req, res) => {
-  const userCount = await User.countDocuments();
-  const reviewCount = await Review.countDocuments();
-  res.json({ userCount, reviewCount });
+  try {
+    const userCount = await User.countDocuments();
+    const reviewCount = await Review.countDocuments();
+
+    const bannedUsers = await User.countDocuments({ banned: true });
+    const adminUsers = await User.countDocuments({ role: "admin" });
+
+    const recentUsers = await User.find()
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .select("username email profileImage createdAt");
+
+    const recentReviews = await Review.find()
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .populate("user", "username profileImage")
+      .select("caption image createdAt");
+
+    const topReviewers = await Review.aggregate([
+      {
+        $group: {
+          _id: "$user",
+          totalReviews: { $sum: 1 },
+        },
+      },
+      { $sort: { totalReviews: -1 } },
+      { $limit: 5 },
+      {
+        $lookup: {
+          from: "users",
+          localField: "_id",
+          foreignField: "_id",
+          as: "userInfo",
+        },
+      },
+      { $unwind: "$userInfo" },
+      {
+        $project: {
+          _id: 0,
+          userId: "$userInfo._id",
+          username: "$userInfo.username",
+          profileImage: "$userInfo.profileImage",
+          totalReviews: 1,
+        },
+      },
+    ]);
+
+    res.json({
+      userCount,
+      reviewCount,
+      bannedUsers,
+      adminUsers,
+      recentUsers,
+      recentReviews,
+      topReviewers,
+    });
+  } catch (error) {
+    console.error("Error getting stats:", error.message);
+    res.status(500).json({ message: "Internal server error" });
+  }
 });
 
 router.post("/", protectRoute, async (req, res) => {
@@ -46,7 +103,10 @@ router.post("/", protectRoute, async (req, res) => {
 // Get paginated reviews (infinite scroll)
 router.get("/", protectRoute, async (req, res) => {
   try {
-    const reviews = await Review.find().populate("user", "username profileImage");
+    const reviews = await Review.find().populate(
+      "user",
+      "username profileImage",
+    );
     res.status(200).json(reviews);
   } catch (error) {
     console.error("Error in get all reviews route:", error);
