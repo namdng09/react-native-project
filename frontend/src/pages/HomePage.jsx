@@ -4,6 +4,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { useAuthStore } from "./../store/useAuthStore";
 import ManageUsersPage from "../components/ManageUsersPage";
 import ManageReviewsPage from "../components/ManageReviewsPage";
+import CreateUserForm from "../components/CreateUserForm";
 
 const HomePage = () => {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
@@ -27,6 +28,14 @@ const HomePage = () => {
               <Route
                 path="/admin/manage-users"
                 element={authUser ? <ManageUsersPage /> : <Navigate to="/login" />}
+              />
+              <Route
+                path="/admin/manage-users/create"
+                element={authUser ? <ManageUsersPage /> : <Navigate to="/login" />}
+              />
+              <Route
+                path="/admin/manage-users/edit"
+                element={authUser ? <CreateUserForm /> : <Navigate to="/login" />}
               />
               <Route
                 path="/admin/manage-reviews"
