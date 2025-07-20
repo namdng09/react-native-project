@@ -8,6 +8,7 @@ import {
   Alert,
   Image,
   ActivityIndicator,
+  KeyboardAvoidingView,
   Platform,
   ScrollView,
 } from "react-native";
@@ -31,7 +32,29 @@ export default function ProfileEdit() {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
 
+  const [amount, setAmount] = useState("");
+  const [description, setDescription] = useState("");
+  const [qrUrl, setQrUrl] = useState("");
+
   const [loading, setLoading] = useState(false);
+
+  const generateQrUrl = () => {
+    if (!amount || !description) {
+      Alert.alert(
+        "Thiếu thông tin",
+        "Vui lòng nhập số tiền và nội dung chuyển khoản",
+      );
+      return;
+    }
+
+    const bankId = "970422";
+    const accountNo = "0869261355";
+    const template = "compact";
+    const accountName = encodeURIComponent("PHAM NAM DUONG");
+    const addInfo = encodeURIComponent(description);
+    const qr = `https://img.vietqr.io/image/${bankId}-${accountNo}-${template}.png?amount=${amount}&addInfo=${addInfo}&accountName=${accountName}`;
+    setQrUrl(qr);
+  };
 
   const pickImage = async () => {
     try {
@@ -104,8 +127,14 @@ export default function ProfileEdit() {
       }
 
       // Nếu muốn đổi mật khẩu, yêu cầu nhập mật khẩu hiện tại
-      if ((currentPassword && !newPassword) || (!currentPassword && newPassword)) {
-        Alert.alert("Lỗi", "Vui lòng nhập cả mật khẩu hiện tại và mật khẩu mới");
+      if (
+        (currentPassword && !newPassword) ||
+        (!currentPassword && newPassword)
+      ) {
+        Alert.alert(
+          "Lỗi",
+          "Vui lòng nhập cả mật khẩu hiện tại và mật khẩu mới",
+        );
         return;
       }
 
@@ -139,51 +168,98 @@ export default function ProfileEdit() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <TouchableOpacity onPress={pickImage} style={styles.imagePicker}>
-        {profileImage ? (
-          <Image source={{ uri: profileImage }} style={styles.avatar} />
-        ) : (
-          <View style={styles.placeholder}>
-            <Text style={{ color: COLORS.placeholderText }}>Chọn ảnh</Text>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      keyboardVerticalOffset={100}
+    >
+      <ScrollView
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <TouchableOpacity onPress={pickImage} style={styles.imagePicker}>
+          {profileImage ? (
+            <Image source={{ uri: profileImage }} style={styles.avatar} />
+          ) : (
+            <View style={styles.placeholder}>
+              <Text style={{ color: COLORS.placeholderText }}>Chọn ảnh</Text>
+            </View>
+          )}
+        </TouchableOpacity>
+
+        <Text style={styles.label}>Tên người dùng</Text>
+        <TextInput
+          style={styles.input}
+          value={username}
+          onChangeText={setUsername}
+        />
+
+        <Text style={styles.label}>Email</Text>
+        <TextInput style={styles.input} value={email} onChangeText={setEmail} />
+
+        <Text style={styles.label}>Mật khẩu hiện tại</Text>
+        <TextInput
+          style={styles.input}
+          value={currentPassword}
+          onChangeText={setCurrentPassword}
+          secureTextEntry
+        />
+
+        <Text style={styles.label}>Mật khẩu mới</Text>
+        <TextInput
+          style={styles.input}
+          value={newPassword}
+          onChangeText={setNewPassword}
+          secureTextEntry
+        />
+
+        <TouchableOpacity style={styles.button} onPress={handleSave}>
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.buttonText}>Lưu thay đổi</Text>
+          )}
+        </TouchableOpacity>
+
+        {qrUrl ? (
+          <View style={{ alignItems: "center", marginTop: 20 }}>
+            <Image
+              source={{ uri: qrUrl }}
+              style={{ width: 250, height: 250 }}
+            />
+            <Text
+              style={{
+                marginTop: 10,
+                fontSize: 14,
+                color: COLORS.textSecondary,
+                textAlign: "center",
+              }}
+            >
+              Quét để chuyển khoản tới PHAM NAM DUONG
+            </Text>
           </View>
-        )}
-      </TouchableOpacity>
+        ) : null}
+        <Text style={styles.label}>Số tiền cần chuyển</Text>
+        <TextInput
+          style={styles.input}
+          value={amount}
+          onChangeText={setAmount}
+          keyboardType="numeric"
+        />
 
-      <Text style={styles.label}>Tên người dùng</Text>
-      <TextInput
-        style={styles.input}
-        value={username}
-        onChangeText={setUsername}
-      />
+        <Text style={styles.label}>Nội dung chuyển khoản</Text>
+        <TextInput
+          style={styles.input}
+          value={description}
+          onChangeText={setDescription}
+        />
 
-      <Text style={styles.label}>Email</Text>
-      <TextInput style={styles.input} value={email} onChangeText={setEmail} />
-
-      <Text style={styles.label}>Mật khẩu hiện tại</Text>
-      <TextInput
-        style={styles.input}
-        value={currentPassword}
-        onChangeText={setCurrentPassword}
-        secureTextEntry
-      />
-
-      <Text style={styles.label}>Mật khẩu mới</Text>
-      <TextInput
-        style={styles.input}
-        value={newPassword}
-        onChangeText={setNewPassword}
-        secureTextEntry
-      />
-
-      <TouchableOpacity style={styles.button} onPress={handleSave}>
-        {loading ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={styles.buttonText}>Lưu thay đổi</Text>
-        )}
-      </TouchableOpacity>
-    </ScrollView>
+        <TouchableOpacity style={styles.button} onPress={generateQrUrl}>
+          <Text style={styles.buttonText}>Ủng hộ / Donation</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
