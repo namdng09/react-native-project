@@ -122,21 +122,37 @@ router.get("/:id", protectRoute, async (req, res) => {
 
 router.get("/search", protectRoute, async (req, res) => {
   try {
-    const { title, rating } = req.query;
+    const { title, rating, page = 1, limit = 5 } = req.query;
 
-    let filter = {};
+    const filter = {};
 
-    if (title) filter.title = new RegExp(title, "i");
-    if (rating) filter.rating = rating;
+    if (title) {
+      filter.title = { $regex: title, $options: "i" };
+    }
 
-    const reviews = await Review.find(filter).populate(
-      "user",
-      "username profileImage",
-    );
+    if (rating) {
+      filter.rating = Number(rating);
+    }
 
-    res.json(reviews);
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    const [reviews, totalReviews] = await Promise.all([
+      Review.find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(parseInt(limit))
+        .populate("user", "-password"),
+      Review.countDocuments(filter),
+    ]);
+
+    res.json({
+      reviews,
+      currentPage: parseInt(page),
+      totalReviews,
+      totalPages: Math.ceil(totalReviews / limit),
+    });
   } catch (error) {
-    console.error("Error searching reviews", error.message);
+    console.error("Error searching reviews:", error.message);
     res.status(500).json({ message: "Internal server error" });
   }
 });
