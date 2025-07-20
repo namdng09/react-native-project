@@ -39,7 +39,7 @@ export const useAuthStore = create((set, get) => ({
   signup: async (data) => {
     set({ isSigningUp: true });
     try {
-      const res = await axiosInstance.post("/api/auth/register", data);
+      const res = await axiosInstance.post("/api/auth/admin/register", data);
       console.log("asdfasdfasdflkjlkjasdf", axiosInstance);
       const { user, token } = res.data;
 
@@ -57,7 +57,7 @@ export const useAuthStore = create((set, get) => ({
   login: async (data) => {
     set({ isLoggingIn: true });
     try {
-      const res = await axiosInstance.post("/api/auth/login", data);
+      const res = await axiosInstance.post("/api/auth/admin/login", data);
       const { user, token } = res.data;
 
       set({ authUser: user, token });
