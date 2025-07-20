@@ -23,7 +23,7 @@ const HomePage = () => {
             <div className="flex-1 p-6 overflow-y-auto bg-base-100">
               <Routes>
                 <Route
-                  path="/admin"
+                  path="/"
                   element={
                     authUser ? <DashboardPage /> : <Navigate to="/login" />
                   }

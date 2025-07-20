@@ -73,20 +73,6 @@ router.delete("/:id", protectRoute, async (req, res) => {
     const review = await Review.findById(req.params.id);
     if (!review) return res.status(404).json({ message: "Review not found" });
 
-    if (review.user.toString() !== req.user._id.toString()) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
-    // delete image from cloudinary if exists
-    if (review.image && review.image.includes("cloudinary")) {
-      try {
-        const publicId = review.image.split("/").pop().split(".")[0];
-        await cloudinary.uploader.destroy(publicId);
-      } catch (deleteError) {
-        console.log("Error deleting image from cloudinary", deleteError);
-      }
-    }
-
     await review.deleteOne();
 
     res.json({ message: "Review deleted successfully" });

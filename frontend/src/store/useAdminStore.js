@@ -10,6 +10,44 @@ export const useAdminStore = create((set, get) => ({
   loadingUsers: false,
   loadingReviews: false,
 
+  fetchAllReviews: async () => {
+    set({ loadingReviews: true });
+    try {
+      const res = await axiosInstance.get("/api/reviews", {
+        headers: {
+          Authorization: `Bearer ${get().token}`,
+        },
+      });
+      set({ reviews: res.data });
+    } catch (error) {
+      toast.error("Failed to load reviews");
+      console.error("Fetch reviews error:", error);
+    } finally {
+      set({ loadingReviews: false });
+    }
+  },
+
+  deleteReview: async (reviewId) => {
+    try {
+      const token = get().token;
+      await axiosInstance.delete(`/api/reviews/${reviewId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      // Cập nhật lại danh sách reviews sau khi xóa
+      set((state) => ({
+        reviews: state.reviews.filter((review) => review._id !== reviewId),
+      }));
+
+      toast.success("Review deleted successfully");
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Failed to delete review");
+      console.error("Delete review error:", error);
+    }
+  },
+
   updateUserById: async (id, data) => {
     const token = get().token;
 
