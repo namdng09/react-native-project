@@ -12,36 +12,47 @@ const HomePage = () => {
   return (
     <div className="h-screen bg-base-200">
       <div className="flex items-center justify-center pt-20 px-4">
-        <div className="bg-base-100 rounded-lg shadow-lg w-full max-w-6xl h-[calc(100vh-8rem)]">
+        <div className="bg-base-100 rounded-lg shadow-lg w-full max-w-screen-xl h-[calc(100vh-8rem)]">
           <div className="flex h-full rounded-lg overflow-hidden">
-            {/* Sidebar */}
-            <Sidebar />
+            <div className="w-60 min-w-[240px] bg-base-300 p-4">
+              <Sidebar />
+            </div>
 
             {/* Main Content */}
-            <Routes>
-              <Route
-                path="/admin"
-                element={
-                  authUser ? <DashboardPage /> : <Navigate to="/login" />
-                }
-              />
-              <Route
-                path="/admin/manage-users"
-                element={authUser ? <ManageUsersPage /> : <Navigate to="/login" />}
-              />
-              <Route
-                path="/admin/manage-users/create"
-                element={authUser ? <CreateUserForm /> : <Navigate to="/login" />}
-              />
-              <Route
-                path="/admin/manage-users/edit"
-                element={authUser ? <CreateUserForm /> : <Navigate to="/login" />}
-              />
-              <Route
-                path="/admin/manage-reviews"
-                element={authUser ? <ManageReviewsPage /> : <Navigate to="/login" />}
-              />
-            </Routes>
+            <div className="flex-1 p-6 overflow-y-auto bg-base-100">
+              <Routes>
+                <Route
+                  path="/admin"
+                  element={
+                    authUser ? <DashboardPage /> : <Navigate to="/login" />
+                  }
+                />
+                <Route
+                  path="/admin/manage-users"
+                  element={
+                    authUser ? <ManageUsersPage /> : <Navigate to="/login" />
+                  }
+                />
+                <Route
+                  path="/admin/manage-users/create"
+                  element={
+                    authUser ? <CreateUserForm /> : <Navigate to="/login" />
+                  }
+                />
+                <Route
+                  path="/admin/manage-users/edit"
+                  element={
+                    authUser ? <CreateUserForm /> : <Navigate to="/login" />
+                  }
+                />
+                <Route
+                  path="/admin/manage-reviews"
+                  element={
+                    authUser ? <ManageReviewsPage /> : <Navigate to="/login" />
+                  }
+                />
+              </Routes>
+            </div>
           </div>
         </div>
       </div>
