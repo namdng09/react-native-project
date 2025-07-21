@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Flaura",
-    "slug": "mobile",
+    "slug": "flaura",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon-v2.png",
@@ -16,7 +16,8 @@
         "foregroundImage": "./assets/images/adaptive-icon-v2.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.namdng09.flaura"
     },
     "web": {
       "bundler": "metro",
@@ -37,6 +38,13 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "07a43db8-46ef-4598-ad12-33395ed706e1"
+      }
+    },
+    "owner": "namdng09"
   }
 }
