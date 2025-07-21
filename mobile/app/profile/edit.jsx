@@ -6,11 +6,19 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
+  Image,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useAuthStore } from "../../store/authStore";
 import { API_URL } from "../../constants/api";
 import COLORS from "../../constants/colors";
+
+import * as ImagePicker from "expo-image-picker";
+import * as FileSystem from "expo-file-system";
 
 export default function ProfileEdit() {
   const router = useRouter();
@@ -18,46 +26,240 @@ export default function ProfileEdit() {
 
   const [username, setUsername] = useState(user?.username || "");
   const [email, setEmail] = useState(user?.email || "");
+  const [profileImage, setProfileImage] = useState(user?.profileImage || null);
+  const [imageBase64, setImageBase64] = useState(null);
+
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+
+  const [amount, setAmount] = useState("");
+  const [description, setDescription] = useState("");
+  const [qrUrl, setQrUrl] = useState("");
+
+  const [loading, setLoading] = useState(false);
+
+  const generateQrUrl = () => {
+    if (!amount || !description) {
+      Alert.alert(
+        "Thiếu thông tin",
+        "Vui lòng nhập số tiền và nội dung chuyển khoản",
+      );
+      return;
+    }
+
+    const bankId = "970422";
+    const accountNo = "0869261355";
+    const template = "compact";
+    const accountName = encodeURIComponent("PHAM NAM DUONG");
+    const addInfo = encodeURIComponent(description);
+    const qr = `https://img.vietqr.io/image/${bankId}-${accountNo}-${template}.png?amount=${amount}&addInfo=${addInfo}&accountName=${accountName}`;
+    setQrUrl(qr);
+  };
+
+  const pickImage = async () => {
+    try {
+      if (Platform.OS !== "web") {
+        const { status } =
+          await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== "granted") {
+          Alert.alert("Quyền bị từ chối", "Vui lòng cấp quyền truy cập ảnh");
+          return;
+        }
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: "images",
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.6,
+        base64: true,
+      });
+
+      if (!result.canceled) {
+        const chosen = result.assets[0];
+        setProfileImage(chosen.uri);
+
+        if (chosen.base64) {
+          setImageBase64(chosen.base64);
+        } else {
+          const base64 = await FileSystem.readAsStringAsync(chosen.uri, {
+            encoding: FileSystem.EncodingType.Base64,
+          });
+          setImageBase64(base64);
+        }
+      }
+    } catch (err) {
+      console.error("Image picker error:", err);
+      Alert.alert("Lỗi", "Không thể chọn ảnh");
+    }
+  };
+
+  const uploadProfileImage = async () => {
+    if (!imageBase64) return null;
+
+    const fileType = profileImage?.split(".").pop() || "jpeg";
+    const dataUrl = `data:image/${fileType};base64,${imageBase64}`;
+
+    const res = await fetch(`${API_URL}/api/users/profile/image`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ profileImage: dataUrl }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Upload ảnh thất bại");
+
+    return data.profileImage;
+  };
 
   const handleSave = async () => {
     try {
+      setLoading(true);
+
+      // Upload ảnh trước nếu có
+      let newImageUrl = profileImage;
+      if (imageBase64) {
+        const uploadedUrl = await uploadProfileImage();
+        if (uploadedUrl) newImageUrl = uploadedUrl;
+      }
+
+      // Nếu muốn đổi mật khẩu, yêu cầu nhập mật khẩu hiện tại
+      if (
+        (currentPassword && !newPassword) ||
+        (!currentPassword && newPassword)
+      ) {
+        Alert.alert(
+          "Lỗi",
+          "Vui lòng nhập cả mật khẩu hiện tại và mật khẩu mới",
+        );
+        return;
+      }
+
       const res = await fetch(`${API_URL}/api/users/profile`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ username, email }),
+        body: JSON.stringify({
+          username,
+          email,
+          password: newPassword || undefined, // chỉ gửi nếu có
+        }),
       });
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
 
-      await updateUser(data);
+      await updateUser({ ...data, profileImage: newImageUrl });
 
       Alert.alert("Thành công", "Cập nhật hồ sơ thành công");
-      router.back(); // quay lại
+      setCurrentPassword("");
+      setNewPassword("");
+      router.back();
     } catch (err) {
       Alert.alert("Lỗi", err.message || "Không cập nhật được hồ sơ");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.label}>Tên người dùng</Text>
-      <TextInput
-        style={styles.input}
-        value={username}
-        onChangeText={setUsername}
-      />
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      keyboardVerticalOffset={100}
+    >
+      <ScrollView
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <TouchableOpacity onPress={pickImage} style={styles.imagePicker}>
+          {profileImage ? (
+            <Image source={{ uri: profileImage }} style={styles.avatar} />
+          ) : (
+            <View style={styles.placeholder}>
+              <Text style={{ color: COLORS.placeholderText }}>Chọn ảnh</Text>
+            </View>
+          )}
+        </TouchableOpacity>
 
-      <Text style={styles.label}>Email</Text>
-      <TextInput style={styles.input} value={email} onChangeText={setEmail} />
+        <Text style={styles.label}>Tên người dùng</Text>
+        <TextInput
+          style={styles.input}
+          value={username}
+          onChangeText={setUsername}
+        />
 
-      <TouchableOpacity style={styles.button} onPress={handleSave}>
-        <Text style={styles.buttonText}>Lưu thay đổi</Text>
-      </TouchableOpacity>
-    </View>
+        <Text style={styles.label}>Email</Text>
+        <TextInput style={styles.input} value={email} onChangeText={setEmail} />
+
+        <Text style={styles.label}>Mật khẩu hiện tại</Text>
+        <TextInput
+          style={styles.input}
+          value={currentPassword}
+          onChangeText={setCurrentPassword}
+          secureTextEntry
+        />
+
+        <Text style={styles.label}>Mật khẩu mới</Text>
+        <TextInput
+          style={styles.input}
+          value={newPassword}
+          onChangeText={setNewPassword}
+          secureTextEntry
+        />
+
+        <TouchableOpacity style={styles.button} onPress={handleSave}>
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.buttonText}>Lưu thay đổi</Text>
+          )}
+        </TouchableOpacity>
+
+        {qrUrl ? (
+          <View style={{ alignItems: "center", marginTop: 20 }}>
+            <Image
+              source={{ uri: qrUrl }}
+              style={{ width: 250, height: 250 }}
+            />
+            <Text
+              style={{
+                marginTop: 10,
+                fontSize: 14,
+                color: COLORS.textSecondary,
+                textAlign: "center",
+              }}
+            >
+              Quét để chuyển khoản tới PHAM NAM DUONG
+            </Text>
+          </View>
+        ) : null}
+        <Text style={styles.label}>Số tiền cần chuyển</Text>
+        <TextInput
+          style={styles.input}
+          value={amount}
+          onChangeText={setAmount}
+          keyboardType="numeric"
+        />
+
+        <Text style={styles.label}>Nội dung chuyển khoản</Text>
+        <TextInput
+          style={styles.input}
+          value={description}
+          onChangeText={setDescription}
+        />
+
+        <TouchableOpacity style={styles.button} onPress={generateQrUrl}>
+          <Text style={styles.buttonText}>Ủng hộ / Donation</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -65,7 +267,6 @@ const styles = StyleSheet.create({
   container: {
     padding: 20,
     backgroundColor: "#fff",
-    flex: 1,
   },
   label: {
     fontSize: 16,
@@ -89,5 +290,23 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#fff",
     fontWeight: "bold",
+  },
+  imagePicker: {
+    alignSelf: "center",
+    marginBottom: 20,
+  },
+  avatar: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+  },
+  placeholder: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

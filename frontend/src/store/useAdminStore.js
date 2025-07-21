@@ -36,7 +36,7 @@ export const useAdminStore = create((set, get) => ({
   fetchAllReviews: async () => {
     set({ loadingReviews: true });
     try {
-      const res = await axiosInstance.get("/api/reviews", {
+      const res = await axiosInstance.get("/api/reviews/all", {
         headers: {
           Authorization: `Bearer ${get().token}`,
         },
@@ -101,7 +101,6 @@ export const useAdminStore = create((set, get) => ({
     set({ loadingUsers: true });
     try {
       const token = localStorage.getItem("token");
-      console.log(token);
       const res = await axiosInstance.get("/api/users", {
         headers: {
           Authorization: `Bearer ${token}`,
